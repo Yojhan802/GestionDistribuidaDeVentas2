@@ -20,8 +20,7 @@
         <div class="bg-white shadow rounded-xl p-4 text-center">
           <p class="text-gray-500">Productos</p>
           <h2 class="text-2xl font-bold">
-              <% ProductoJpaController produc = new ProductoJpaController();
-                     out.print(produc.findProductoEntities().size());   %>
+              
           </h2>
         </div>
         <div class="bg-white shadow rounded-xl p-4 text-center">
@@ -70,27 +69,27 @@
         <h2 class="text-xl font-bold mb-4">🗂️ Accesos Directos</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <a
-            href="/src/main/webapp/cliente.html"
+              href="/GestionDistribuidaDeVentas/cliente.html"
             class="bg-white shadow p-4 rounded-xl hover:bg-blue-50"
             >👥 Gestionar Clientes</a
           >
           <a
-            href="/src/main/webapp/producto.html"
+              href="/GestionDistribuidaDeVentas/producto.html"
             class="bg-white shadow p-4 rounded-xl hover:bg-blue-50"
             >📦 Gestionar Productos
           </a>
           <a
-            href="/src/main/webapp/kardex.html"
+              href="/GestionDistribuidaDeVentas/kardex.html"
             class="bg-white shadow p-4 rounded-xl hover:bg-blue-50"
             >📋 Ver Kardex</a
           >
           <a
-            href="/src/main/webapp/ventaDetalle.html"
+              href="/GestionDistribuidaDeVentas/ventaDetalle.html"
             class="bg-white shadow p-4 rounded-xl hover:bg-blue-50"
             >🧾 Ver Detalle de Ventas</a
           >
           <a
-            href="/src/main/webapp/usuario.html"
+              href="/GestionDistribuidaDeVentas/usuario.html"
             class="bg-white shadow p-4 rounded-xl hover:bg-blue-50"
             >🧑‍💼 Administrar Usuarios</a
           >
