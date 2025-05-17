@@ -65,18 +65,47 @@ public class ClienteServlet extends HttpServlet {
                 sb.append(line);
             }
             JSONObject jsonObject = new JSONObject(sb.toString());
-            Cliente cliente = new Cliente();
-            cliente.setCodiClie(jsonObject.getInt("codiClie"));
-            cliente.setNombClie(jsonObject.getString("nombClie"));
+            int codiClie = jsonObject.getInt("codiClie");
+            String nombClie = jsonObject.getString("nombClie");
 
-            em.getTransaction().begin();
-            em.persist(cliente);
-            em.getTransaction().commit();
+            // Verificar si ya existe un cliente con el mismo código
+            Cliente clienteExistente = em.find(Cliente.class, codiClie);
 
-            response.setStatus(HttpServletResponse.SC_CREATED);
+            if (clienteExistente != null) {
+                // Si el cliente ya existe, enviar un código de estado 409 (Conflict)
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                PrintWriter out = response.getWriter();
+                JSONObject errorJson = new JSONObject();
+                errorJson.put("mensaje", "El código de cliente ya existe en la base de datos.");
+                out.print(errorJson.toString());
+                out.flush();
+            } else {
+                // Si el cliente no existe, crear y persistir el nuevo cliente
+                Cliente cliente = new Cliente();
+                cliente.setCodiClie(codiClie);
+                cliente.setNombClie(nombClie);
+
+                em.getTransaction().begin();
+                em.persist(cliente);
+                em.getTransaction().commit();
+
+                // Enviar un código de estado 201 (Created) para indicar éxito
+                response.setStatus(HttpServletResponse.SC_CREATED);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                PrintWriter out = response.getWriter();
+                JSONObject successJson = new JSONObject();
+                successJson.put("mensaje", "Cliente agregado con éxito.");
+                out.print(successJson.toString());
+                out.flush();
+            }
+
         } catch (Exception e) {
             em.getTransaction().rollback();
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            // Opcionalmente, podrías enviar un mensaje de error más detallado en la respuesta
         } finally {
             em.close();
         }
