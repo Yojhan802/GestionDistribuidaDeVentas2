@@ -3,6 +3,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Inicio - Gestión Distribuida de Ventas</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
@@ -17,7 +18,9 @@
       <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white shadow rounded-xl p-4 text-center">
           <p class="text-gray-500">Productos</p>
-          <h2 class="text-2xl font-bold">350</h2>
+          <h2 class="text-2xl font-bold">
+            <% %>
+          </h2>
         </div>
         <div class="bg-white shadow rounded-xl p-4 text-center">
           <p class="text-gray-500">Clientes</p>
