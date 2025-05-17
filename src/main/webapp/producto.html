@@ -124,14 +124,28 @@
                 const metodo = modoEditar ? 'PUT' : 'POST';
 
                 fetch('productoservlet', {
-                    method: metodo,
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(producto)
-                }).then(() => {
-                    form.reset();
-                    modoEditar = false;
-                    cargarProductos();
-                });
+                method: metodo,
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(producto)
+            })
+            .then(response => {
+            if (!response.ok) {
+            return response.text().then(msg => { throw new Error(msg); });
+            }
+            return response;
+            })
+            .then(() => {
+            form.reset();
+            modoEditar = false;
+            cargarProductos();
+            })
+            .catch(error => {
+            alert("❌ Error: " + error.message);
+            // Limpiar campos si hay error (como duplicado)
+            document.getElementById('nombProd').value = '';
+            document.getElementById('precProd').value = '';
+        document.getElementById('stocProd').value = '';
+        });
             });
 
             function cargarProductos() {
