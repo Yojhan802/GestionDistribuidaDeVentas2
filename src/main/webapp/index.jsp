@@ -77,7 +77,7 @@
           <a
               href="/GestionDistribuidaDeVentas/cliente.html"
             class="bg-white shadow p-4 rounded-xl hover:bg-blue-50"
-            >👥 Gestionar Clientes</a
+            >👥 Gestionar Clientes</a>
           
           
           <a
@@ -88,8 +88,7 @@
           <a
               href="/GestionDistribuidaDeVentas/kardex.html"
             class="bg-white shadow p-4 rounded-xl hover:bg-blue-50"
-            >📋 Ver Kardex</a
-          >
+            >📋 Ver Kardex</a>
           <a
               href="/GestionDistribuidaDeVentas/ventaDetalle.html"
             class="bg-white shadow p-4 rounded-xl hover:bg-blue-50"
