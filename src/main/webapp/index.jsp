@@ -1,14 +1,19 @@
-<%@page import="dao.ProductoJpaController"%>
+<%-- 
+    Document   : index
+    Created on : 16 may. 2025, 20:53:27
+    Author     : yojha
+--%>
+
+<%@page import="dao.Controladora"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Inicio - Gestión Distribuida de Ventas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body class="bg-gray-100 text-gray-800">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Inicio - Gestión Distribuida de Ventas</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100 text-gray-800">
     <header class="bg-blue-700 text-white p-6">
       <h1 class="text-2xl font-bold">🚀 Gestión Distribuida de Ventas</h1>
       <p class="text-sm">Panel principal del sistema</p>
@@ -20,13 +25,13 @@
         <div class="bg-white shadow rounded-xl p-4 text-center">
           <p class="text-gray-500">Productos</p>
           <h2 class="text-2xl font-bold">
-              <% ProductoJpaController produc = new ProductoJpaController();
-                     out.print(produc.findProductoEntities().size());   %>
+              
           </h2>
         </div>
+        
         <div class="bg-white shadow rounded-xl p-4 text-center">
           <p class="text-gray-500">Clientes</p>
-          <h2 class="text-2xl font-bold">120</h2>
+          <h2 class="text-2xl font-bold"></h2>
         </div>
         <div class="bg-white shadow rounded-xl p-4 text-center">
           <p class="text-gray-500">Ventas Hoy</p>
