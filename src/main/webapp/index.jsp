@@ -20,7 +20,8 @@
         <div class="bg-white shadow rounded-xl p-4 text-center">
           <p class="text-gray-500">Productos</p>
           <h2 class="text-2xl font-bold">
-              
+              <% ProductoJpaController produc = new ProductoJpaController();
+                     out.print(produc.findProductoEntities().size());   %>
           </h2>
         </div>
         <div class="bg-white shadow rounded-xl p-4 text-center">
@@ -72,7 +73,8 @@
               href="/GestionDistribuidaDeVentas/cliente.html"
             class="bg-white shadow p-4 rounded-xl hover:bg-blue-50"
             >👥 Gestionar Clientes</a
-          >
+          
+          
           <a
               href="/GestionDistribuidaDeVentas/producto.html"
             class="bg-white shadow p-4 rounded-xl hover:bg-blue-50"
