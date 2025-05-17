@@ -81,7 +81,7 @@
 
         <form id="productoForm">
             <div class="fila">
-                <input type="number" id="codiProd" placeholder="Código" required>
+                <input type="hidden" id="codiProd">
                 <input type="text" id="nombProd" placeholder="Nombre" required>
                 <input type="text" id="precProd" placeholder="Precio" required>
             </div>
@@ -112,12 +112,14 @@
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
 
-                const producto = {
-                    codiProd: parseInt(document.getElementById('codiProd').value),
+                let producto = {
                     nombProd: document.getElementById('nombProd').value,
                     precProd: parseFloat(document.getElementById('precProd').value),
                     stocProd: parseFloat(document.getElementById('stocProd').value)
                 };
+                if (modoEditar) {
+                producto.codiProd = parseInt(document.getElementById('codiProd').value);
+                }
 
                 const metodo = modoEditar ? 'PUT' : 'POST';
 
