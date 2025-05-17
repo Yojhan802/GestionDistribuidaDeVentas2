@@ -1,3 +1,4 @@
+<%@page import="dao.ProductoJpaController"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="es">
@@ -19,7 +20,8 @@
         <div class="bg-white shadow rounded-xl p-4 text-center">
           <p class="text-gray-500">Productos</p>
           <h2 class="text-2xl font-bold">
-            <% %>
+              <% ProductoJpaController produc = new ProductoJpaController();
+                     out.print(produc.findProductoEntities().size());   %>
           </h2>
         </div>
         <div class="bg-white shadow rounded-xl p-4 text-center">
