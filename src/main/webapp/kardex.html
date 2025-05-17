@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<!--INTEGRANTES
-Bravo Pajuelo, Lady
-Pastor Vega, Elliot
-Santamaria Azañero,Daniel-->
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -134,7 +130,6 @@ Santamaria Azañero,Daniel-->
 <body>
 
   <h2>Gestión de Kardex</h2>
-<p>-Bravo Pajuelo,Lady <br>-Pastor Vega,Elliot <br>-Santamaria Azañero,Daniel </p>  
 <label for="codiKard">Código Kardex:</label>
   <input type="number" id="codiKard">
 
@@ -172,7 +167,7 @@ Santamaria Azañero,Daniel-->
   </table>
 
 <script>
-  const url = 'http://localhost:8080/TPD06/kardex';
+  const url = 'http://localhost:8080/GestionDistribuidaDeVentas/kardex';
 
   function listarKardex() {
     fetch(url)
@@ -192,7 +187,6 @@ Santamaria Azañero,Daniel-->
           tabla.appendChild(fila);
         });
       })
-      .catch(err => alert("Error al listar los registros: " + err));
   }
 
   function crearKardex() {
