@@ -89,7 +89,8 @@ public class ProductoServlet extends HttpServlet {
         //Recibe datos en json
         JSONObject json = new JSONObject(jsonBuilder.toString());
         Producto producto = new Producto();
-        producto.setCodiProd(json.getInt("codiProd"));
+        int nuevoCodigo = em.createQuery("SELECT COALESCE(MAX(p.codiProd), 0) FROM Producto p", Integer.class).getSingleResult() + 1;
+        producto.setCodiProd(nuevoCodigo);
         producto.setNombProd(json.getString("nombProd"));
         producto.setPrecProd(json.getDouble("precProd"));
         producto.setStocProd(json.getDouble("stocProd"));
