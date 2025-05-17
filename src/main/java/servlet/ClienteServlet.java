@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package servlet;
 
 import dto.Cliente;
@@ -47,7 +43,7 @@ public class ClienteServlet extends HttpServlet {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             PrintWriter out = response.getWriter();
-            out.print(jsonArray.toString());
+            out.print(new JSONArray(clientes).toString());
             out.flush();
         } finally {
             em.close();
@@ -55,60 +51,52 @@ public class ClienteServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        EntityManager em = getEntityManager();
-        try {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = request.getReader().readLine()) != null) {
-                sb.append(line);
-            }
-            JSONObject jsonObject = new JSONObject(sb.toString());
-            int codiClie = jsonObject.getInt("codiClie");
-            String nombClie = jsonObject.getString("nombClie");
-
-            // Verificar si ya existe un cliente con el mismo código
-            Cliente clienteExistente = em.find(Cliente.class, codiClie);
-
-            if (clienteExistente != null) {
-                // Si el cliente ya existe, enviar un código de estado 409 (Conflict)
-                response.setStatus(HttpServletResponse.SC_CONFLICT);
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                PrintWriter out = response.getWriter();
-                JSONObject errorJson = new JSONObject();
-                errorJson.put("mensaje", "El código de cliente ya existe en la base de datos.");
-                out.print(errorJson.toString());
-                out.flush();
-            } else {
-                // Si el cliente no existe, crear y persistir el nuevo cliente
-                Cliente cliente = new Cliente();
-                cliente.setCodiClie(codiClie);
-                cliente.setNombClie(nombClie);
-
-                em.getTransaction().begin();
-                em.persist(cliente);
-                em.getTransaction().commit();
-
-                // Enviar un código de estado 201 (Created) para indicar éxito
-                response.setStatus(HttpServletResponse.SC_CREATED);
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                PrintWriter out = response.getWriter();
-                JSONObject successJson = new JSONObject();
-                successJson.put("mensaje", "Cliente agregado con éxito.");
-                out.print(successJson.toString());
-                out.flush();
-            }
-
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            // Opcionalmente, podrías enviar un mensaje de error más detallado en la respuesta
-        } finally {
-            em.close();
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    EntityManager em = getEntityManager();
+    try {
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = request.getReader().readLine()) != null) {
+            sb.append(line);
         }
+        JSONObject jsonObject = new JSONObject(sb.toString());
+        String nombClie = jsonObject.getString("nombClie");
+
+        // Obtener el siguiente código de cliente
+        int codiClie = obtenerSiguienteCodigo(em); // Generar automáticamente el código
+
+        // Crear y persistir el nuevo cliente
+        Cliente cliente = new Cliente();
+        cliente.setCodiClie(codiClie); // Asignar el código generado
+        cliente.setNombClie(nombClie);
+
+        em.getTransaction().begin();
+        em.persist(cliente);
+        em.getTransaction().commit();
+
+        // Enviar un código de estado 201 (Created) para indicar éxito
+        response.setStatus(HttpServletResponse.SC_CREATED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        JSONObject successJson = new JSONObject();
+        successJson.put("mensaje", "Cliente agregado con éxito.");
+        out.print(successJson.toString());
+        out.flush();
+
+    } catch (Exception e) {
+        em.getTransaction().rollback();
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        // Puedes agregar un mensaje de error aquí si lo deseas
+    } finally {
+        em.close();
+    }
+}
+
+    private int obtenerSiguienteCodigo(EntityManager em) {
+        Integer maxCodigo = (Integer) em.createQuery("SELECT MAX(c.codiClie) FROM Cliente c").getSingleResult();
+        return (maxCodigo == null ? 1 : maxCodigo + 1);
     }
 
     @Override

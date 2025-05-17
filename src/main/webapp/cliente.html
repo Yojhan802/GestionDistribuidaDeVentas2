@@ -99,7 +99,7 @@
         }
         .mensaje {
             text-align: center;
-            margin-top: 15px; /* Ajusta si es necesario para espaciado */
+            margin-top: 15px;
             font-weight: bold;
         }
         .mensaje-exito {
@@ -115,7 +115,6 @@
         <h1>Gestión de Clientes</h1>
         <div id="mensaje" class="mensaje"></div>
         <div>
-            <input type="number" id="codiClie" placeholder="Código">
             <input type="text" id="nombClie" placeholder="Nombre">
             <button class="button-crear" onclick="crearCliente()"><i class="fas fa-plus"></i> Crear</button>
             <button class="button-actualizar" onclick="actualizarCliente()"><i class="fas fa-edit"></i> Actualizar</button>
@@ -129,44 +128,46 @@
     <script>
         const url = 'cliente';
         const mensajeDiv = document.getElementById('mensaje');
+        const listaClientesDiv = document.getElementById('listaClientes');
 
         function mostrarMensaje(texto, tipo) {
             mensajeDiv.textContent = texto;
-            mensajeDiv.className = `mensaje mensaje-${tipo}`;
-            setTimeout(() => {
-                mensajeDiv.textContent = '';
-                mensajeDiv.className = 'mensaje';
-            }, 3000); // El mensaje desaparece después de 3 segundos
+            mensajeDiv.classList.remove('mensaje-exito', 'mensaje-error');
+            mensajeDiv.classList.add(`mensaje-${tipo}`);
         }
 
         function listarClientes() {
             fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                    const lista = document.getElementById('listaClientes');
-                    lista.innerHTML = '';
-                    data.forEach(c => {
-                        let item = document.createElement('li');
-                        item.innerHTML = `<span><i class="fas fa-id-card-alt"></i> ${c.codiClie} - ${c.nombClie}</span>`;
-                        lista.appendChild(item);
-                    });
+            .then(res => res.json())
+            .then(clientes => {
+                listaClientesDiv.innerHTML = '';
+                clientes.forEach(cliente => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${cliente.codigo} - ${cliente.nombre}</span>`;
+                    listaClientesDiv.appendChild(li);
                 });
+            })
+            .catch(error => {
+                console.error("Error al listar clientes:", error);
+                mostrarMensaje('Error al obtener la lista de clientes.', 'error');
+            });
         }
 
         function crearCliente() {
-            const codiClie = parseInt(document.getElementById('codiClie').value);
             const nombClie = document.getElementById('nombClie').value;
 
-            if (isNaN(codiClie) || nombClie.trim() === "") {
-                mostrarMensaje('Por favor, ingrese código y nombre del cliente.', 'error');
+            // Validar que se haya ingresado un nombre
+            if (nombClie.trim() === "") {
+                mostrarMensaje('Por favor, ingrese el nombre del cliente.', 'error');
                 return;
             }
 
+            // Crear el objeto de datos solo con el nombre
             const data = {
-                codiClie: codiClie,
-                nombClie: nombClie
+                nombClie: nombClie // Solo se envía el nombre
             };
 
+            // Enviar la solicitud POST al servidor
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -175,96 +176,31 @@
                 body: JSON.stringify(data)
             })
             .then(res => {
-                if (res.status === 409) {
-                    return res.json().then(error => {
-                        mostrarMensaje(error.mensaje || 'El código de cliente ya existe en la base de datos.', 'error');
-                    });
-                } else {
+                if (res.status === 201) { // Código de estado 201 (Created)
                     return res.json();
+                } else if (res.status === 409) { // Código de estado 409 (Conflict)
+                    throw new Error('El cliente ya está registrado');
+                } else {
+                    throw new Error('Error en la creación del cliente');
                 }
             })
             .then(response => {
-                if (response) {
-                    listarClientes();
-                    mostrarMensaje('Cliente agregado con éxito.', 'exito');
-                    document.getElementById('codiClie').value = '';
-                    document.getElementById('nombClie').value = '';
-                }
+                listarClientes(); // Actualizar la lista de clientes
+                mostrarMensaje('Cliente agregado con éxito.', 'exito');
+                document.getElementById('nombClie').value = ''; // Limpiar el campo de nombre
             })
             .catch(error => {
                 console.error("Error al crear cliente:", error);
-                mostrarMensaje('Error al crear el cliente.', 'error');
+                mostrarMensaje(error.message, 'error');
             });
         }
 
         function actualizarCliente() {
-            const codiClie = parseInt(document.getElementById('codiClie').value);
-            const nombClie = document.getElementById('nombClie').value;
-
-            if (isNaN(codiClie) || nombClie.trim() === "") {
-                mostrarMensaje('Por favor, ingrese código y nombre del cliente para actualizar.', 'error');
-                return;
-            }
-
-            const data = {
-                codiClie: codiClie,
-                nombClie: nombClie
-            };
-
-            fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json; charset=UTF-8'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(res => {
-                if (!res.ok) {
-                    return res.json().then(error => {
-                        mostrarMensaje(error.mensaje || 'Error al actualizar el cliente.', 'error');
-                        throw new Error('Error en la actualización');
-                    });
-                }
-                return res.json();
-            })
-            .then(response => {
-                listarClientes();
-                mostrarMensaje('Cliente actualizado con éxito.', 'exito');
-                document.getElementById('codiClie').value = '';
-                document.getElementById('nombClie').value = '';
-            })
-            .catch(error => {
-                console.error("Error al actualizar cliente:", error);
-            });
+            // Función para actualizar un cliente
         }
 
         function eliminarCliente() {
-            const codigo = document.getElementById('codiClie').value;
-
-            if (!codigo) {
-                mostrarMensaje('Por favor, ingrese el código del cliente a eliminar.', 'error');
-                return;
-            }
-
-            fetch(`${url}?codiClie=${codigo}`, { method: 'DELETE' })
-                .then(res => {
-                    if (!res.ok) {
-                        return res.json().then(error => {
-                            mostrarMensaje(error.mensaje || 'Error al eliminar el cliente.', 'error');
-                            throw new Error('Error en la eliminación');
-                        });
-                    }
-                    return res.json();
-                })
-                .then(response => {
-                    listarClientes();
-                    mostrarMensaje('Cliente eliminado con éxito.', 'exito');
-                    document.getElementById('codiClie').value = '';
-                    document.getElementById('nombClie').value = '';
-                })
-                .catch(error => {
-                    console.error("Error al eliminar cliente:", error);
-                });
+            // Función para eliminar un cliente
         }
 
         // Cargar la lista de clientes al cargar la página

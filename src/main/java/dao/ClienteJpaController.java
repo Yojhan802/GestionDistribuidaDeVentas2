@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao;
 
 import dao.exceptions.NonexistentEntityException;
@@ -17,21 +13,12 @@ import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-/**
- *
- * @author edins
- */
 public class ClienteJpaController implements Serializable {
+    private EntityManagerFactory emf  = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
 
     public ClienteJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    private EntityManagerFactory emf = null;
-
-    public ClienteJpaController() {
-        emf= Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
-    }
-    
 
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
@@ -145,5 +132,4 @@ public class ClienteJpaController implements Serializable {
             em.close();
         }
     }
-    
 }
