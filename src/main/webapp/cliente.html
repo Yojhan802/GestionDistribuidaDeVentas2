@@ -99,7 +99,7 @@
         }
         .mensaje {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 15px; /* Ajusta si es necesario para espaciado */
             font-weight: bold;
         }
         .mensaje-exito {
@@ -113,6 +113,7 @@
 <body>
     <div class="container">
         <h1>Gestión de Clientes</h1>
+        <div id="mensaje" class="mensaje"></div>
         <div>
             <input type="number" id="codiClie" placeholder="Código">
             <input type="text" id="nombClie" placeholder="Nombre">
@@ -123,7 +124,6 @@
         <hr>
         <button class="button-listar" onclick="listarClientes()"><i class="fas fa-list"></i> Listar Clientes</button>
         <ul id="listaClientes"></ul>
-        <div id="mensaje" class="mensaje"></div>
     </div>
 
     <script>
@@ -176,7 +176,9 @@
             })
             .then(res => {
                 if (res.status === 409) {
-                    mostrarMensaje('El código de cliente ya existe en la base de datos.', 'error');
+                    return res.json().then(error => {
+                        mostrarMensaje(error.mensaje || 'El código de cliente ya existe en la base de datos.', 'error');
+                    });
                 } else {
                     return res.json();
                 }
@@ -188,6 +190,10 @@
                     document.getElementById('codiClie').value = '';
                     document.getElementById('nombClie').value = '';
                 }
+            })
+            .catch(error => {
+                console.error("Error al crear cliente:", error);
+                mostrarMensaje('Error al crear el cliente.', 'error');
             });
         }
 
@@ -212,12 +218,23 @@
                 },
                 body: JSON.stringify(data)
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(error => {
+                        mostrarMensaje(error.mensaje || 'Error al actualizar el cliente.', 'error');
+                        throw new Error('Error en la actualización');
+                    });
+                }
+                return res.json();
+            })
             .then(response => {
                 listarClientes();
                 mostrarMensaje('Cliente actualizado con éxito.', 'exito');
                 document.getElementById('codiClie').value = '';
                 document.getElementById('nombClie').value = '';
+            })
+            .catch(error => {
+                console.error("Error al actualizar cliente:", error);
             });
         }
 
@@ -230,12 +247,23 @@
             }
 
             fetch(`${url}?codiClie=${codigo}`, { method: 'DELETE' })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) {
+                        return res.json().then(error => {
+                            mostrarMensaje(error.mensaje || 'Error al eliminar el cliente.', 'error');
+                            throw new Error('Error en la eliminación');
+                        });
+                    }
+                    return res.json();
+                })
                 .then(response => {
                     listarClientes();
                     mostrarMensaje('Cliente eliminado con éxito.', 'exito');
                     document.getElementById('codiClie').value = '';
                     document.getElementById('nombClie').value = '';
+                })
+                .catch(error => {
+                    console.error("Error al eliminar cliente:", error);
                 });
         }
 
