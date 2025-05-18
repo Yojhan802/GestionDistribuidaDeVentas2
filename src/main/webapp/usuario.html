@@ -207,14 +207,26 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ logiUsua: logi, passUsua: pass })
         })
-        .then(res => res.json())
-        .then(data => {
-            mostrarMensaje(data.mensaje || data.error, data.mensaje ? "exito" : "error");
-            listarUsuarios();
-            document.getElementById("logi").value = "";
-            document.getElementById("pass").value = "";
-            document.getElementById("logi").focus();
-        });
+        .then(async res => {
+        const data = await res.json();
+
+        if (!res.ok) {
+            // Error desde el servidor
+            alert(data.error || "Ocurrió un error al crear el usuario.");
+            return;
+        }
+
+        // Éxito
+        alert(data.mensaje || "Usuario creado correctamente.");
+
+        // Limpiar campos
+        document.getElementById("logi").value = "";
+        document.getElementById("pass").value = "";
+        document.getElementById("logi").focus();
+
+        // Actualizar lista
+        listarUsuarios();
+    })
     }
 
     function listarUsuarios() {

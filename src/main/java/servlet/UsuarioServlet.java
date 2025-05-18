@@ -1,6 +1,5 @@
 package servlet;
 
-import com.google.gson.Gson;
 import dto.Usuario;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,13 +8,14 @@ import javax.persistence.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-@WebServlet("/usuarios")
+@WebServlet(name = "UsuarioServlet", urlPatterns = "/usuarios" )
 public class UsuarioServlet extends HttpServlet {
 
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
     private EntityManager em;
-    private Gson gson = new Gson();
 
     @Override
     public void init() {
@@ -25,15 +25,36 @@ public class UsuarioServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Usuario> usuarios = em.createNamedQuery("Usuario.findAll", Usuario.class).getResultList();
-        String json = gson.toJson(usuarios);
+
+        JSONArray Ajsn = new JSONArray();
+
+        for (Usuario usu : usuarios) {
+            JSONObject jsn = new JSONObject();
+
+            jsn.put("codiUsua", usu.getCodiUsua());
+            jsn.put("logiUsua", usu.getLogiUsua());
+            jsn.put("passUsua", usu.getPassUsua());
+            Ajsn.put(jsn);
+        }
         resp.setContentType("application/json");
-        resp.getWriter().write(json);
+        resp.getWriter().write(Ajsn.toString());
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BufferedReader reader = req.getReader();
-        Usuario nuevo = gson.fromJson(reader, Usuario.class);
+        StringBuilder jsonB = new StringBuilder();
+        String linea;
+
+        while ((linea = reader.readLine()) != null) {
+            jsonB.append(linea);
+        }
+        JSONObject jsono = new JSONObject(jsonB.toString());
+
+        Usuario nuevo = new Usuario();
+
+        nuevo.setLogiUsua(jsono.getString("logiUsua"));
+        nuevo.setPassUsua(jsono.getString("passUsua"));
 
         // Autoincrementar manualmente si es necesario
         Integer maxId = (Integer) em.createQuery("SELECT COALESCE(MAX(u.codiUsua), 0) FROM Usuario u").getSingleResult();
@@ -50,8 +71,20 @@ public class UsuarioServlet extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BufferedReader reader = req.getReader();
-        Usuario actualizado = gson.fromJson(reader, Usuario.class);
+        StringBuilder jsonB = new StringBuilder();
+        String linea;
+        while ((linea = reader.readLine()) != null) {
+            jsonB.append(linea);
+        }
+        JSONObject jsono = new JSONObject(jsonB.toString());
 
+        Usuario actualizado = new Usuario();
+        
+        actualizado.setCodiUsua(jsono.getInt("codiUsua"));
+        actualizado.setLogiUsua(jsono.getString("logiUsua"));
+        actualizado.setPassUsua(jsono.getString("passUsua"));
+        
+        
         em.getTransaction().begin();
         Usuario existente = em.find(Usuario.class, actualizado.getCodiUsua());
         if (existente != null) {
