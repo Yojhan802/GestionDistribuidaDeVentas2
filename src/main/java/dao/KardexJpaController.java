@@ -19,7 +19,7 @@ import javax.persistence.criteria.Root;
 
 /**
  *
- * @author Naomi Alejandra Vega
+ * 
  */
 public class KardexJpaController implements Serializable {
 
