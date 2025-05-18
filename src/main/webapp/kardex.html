@@ -171,24 +171,26 @@
   const url = 'http://localhost:8080/GestionDistribuidaDeVentas/kardex';
 
   function getProductoByCodiProd() {
-    const codiProd = document.getElementById('codiProd').value;
-    if (!codiProd) return;
+  const codiProd = document.getElementById('codiProd').value;
+  if (!codiProd) return;
 
-    fetch(`${url}/producto/${codiProd}`)
-      .then(response => {
-        if (!response.ok) throw new Error("Producto no encontrado");
-        return response.json();
-      })
-      .then(data => {
-        document.getElementById('cantProd').value = data.cantProd;
-        document.getElementById('saldProd').value = data.saldProd;
-      })
-      .catch(error => {
-        alert(error.message);
-        document.getElementById('cantProd').value = '';
-        document.getElementById('saldProd').value = '';
-      });
-  }
+  fetch(`${url}/producto/${codiProd}`)
+    .then(response => {
+      if (!response.ok) throw new Error("Producto no encontrado");
+      return response.json();
+    })
+    .then(data => {
+      // Aquí usamos precioProd para el saldo y stockProd para la cantidad
+      document.getElementById('saldProd').value = data.precioProd;
+      document.getElementById('cantProd').value = data.stockProd;
+    })
+    .catch(error => {
+      alert(error.message);
+      document.getElementById('cantProd').value = '';
+      document.getElementById('saldProd').value = '';
+    });
+}
+
 
   document.getElementById('codiProd').addEventListener('blur', getProductoByCodiProd);
 
