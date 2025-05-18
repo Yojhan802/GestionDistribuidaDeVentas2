@@ -5,176 +5,290 @@
     <title>Gestión de Usuarios</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            color: #333;
         }
 
         h1 {
             text-align: center;
-            color: #333;
+            margin-bottom: 10px;
+            color: #2c3e50;
         }
 
-        .form-container {
-            background-color: white;
+        .mensaje {
+            text-align: center;
+            margin: 15px auto 30px auto;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            max-width: 600px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .mensaje.exito {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .mensaje.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .section {
+            background-color: #ffffff;
             padding: 20px;
+            margin-bottom: 20px;
             border-radius: 10px;
-            width: 400px;
-            margin: 0 auto;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
 
-        input {
-            width: 100%;
+        .section h2 {
+            color: #34495e;
+        }
+
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-group input {
+            flex: 1;
             padding: 10px;
-            margin-top: 10px;
-            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-width: 150px;
         }
 
         button {
-            margin-top: 10px;
-            padding: 10px;
-            width: 32%;
-            font-weight: bold;
-            border: none;
+            padding: 10px 20px;
             background-color: #3498db;
+            border: none;
+            border-radius: 5px;
             color: white;
             cursor: pointer;
-            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
             background-color: #2980b9;
         }
 
-        #listaUsuarios {
-            list-style: none;
-            padding: 0;
-            max-width: 400px;
-            margin: 20px auto;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        #listaUsuarios li {
-            background-color: white;
-            margin: 5px 0;
+        input::placeholder {
+            color: #aaa;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table th, table td {
             padding: 10px;
-            border-left: 5px solid #3498db;
-            border-radius: 5px;
+            border: 1px solid #ddd;
+            text-align: center;
         }
 
-        .btn-listar {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #2ecc71;
+        table th {
+            background-color: #3498db;
             color: white;
-            font-weight: bold;
-            border: none;
-            border-radius: 5px;
         }
 
-        .btn-listar:hover {
-            background-color: #27ae60;
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
+<div class="container">
     <h1>Gestión de Usuarios</h1>
+    <div id="mensaje" class="mensaje"></div>
 
-    <div class="form-container">
-        <input id="codiUsua" placeholder="Código">
-        <input id="logiUsua" placeholder="Login">
-        <input id="passUsua" placeholder="Password">
-        <div style="display: flex; justify-content: space-between;">
+    <div class="section">
+        <h2>Crear Usuario</h2>
+        <div class="form-group">
+            <input id="logi" placeholder="Nombre de usuario">
+            <input id="pass" placeholder="Contraseña">
             <button onclick="crearUsuario()">Crear</button>
-            <button onclick="actualizarUsuario()">Actualizar</button>
-            <button onclick="eliminarUsuario()">Eliminar</button>
         </div>
     </div>
 
-    <button class="btn-listar" onclick="listarUsuarios()">Listar Usuarios</button>
-    <ul id="listaUsuarios"></ul>
+    <div class="section">
+        <h2>Listar Usuarios</h2>
+        <button onclick="listarUsuarios()">Listar Todos</button>
+        <table id="tablaUsuarios">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre de Usuario</th>
+                <th>Contraseña</th>
+            </tr>
+            </thead>
+            <tbody id="tablaBody">
+            <tr class="no-data">
+                <td colspan="3">No hay datos para mostrar</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-    <script>
-        const url = 'usuario'; // Cambia si tu backend tiene ruta distinta
+    <div class="section">
+        <h2>Actualizar Usuario</h2>
+        <div class="form-group">
+            <input id="idUpdate" placeholder="ID del usuario">
+            <input id="logiUpdate" placeholder="Nuevo nombre de usuario">
+            <input id="passUpdate" placeholder="Nueva contraseña">
+            <button onclick="actualizarUsuario()">Actualizar</button>
+        </div>
+    </div>
 
-        function listarUsuarios() {
-            fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                    const lista = document.getElementById('listaUsuarios');
-                    lista.innerHTML = '';
-                    data.forEach(u => {
-                        let item = document.createElement('li');
-                        item.textContent = `👤 ${u.logiUsua}`;
-                        lista.appendChild(item);
-                    });
-                })
-                .catch(err => alert("Error al listar usuarios: " + err));
+    <div class="section">
+        <h2>Eliminar Usuario</h2>
+        <div class="form-group">
+            <input id="idDelete" placeholder="ID del usuario">
+            <button onclick="eliminarUsuario()">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function mostrarMensaje(texto, tipo) {
+        const mensajeDiv = document.getElementById("mensaje");
+        mensajeDiv.textContent = texto;
+        mensajeDiv.className = "mensaje " + (tipo === "error" ? "error" : "exito");
+        mensajeDiv.style.display = "block";
+        setTimeout(() => {
+            mensajeDiv.style.display = "none";
+        }, 4000);
+    }
+
+    function validarNombre(nombre) {
+        return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre);
+    }
+
+    function crearUsuario() {
+        const logi = document.getElementById("logi").value.trim();
+        const pass = document.getElementById("pass").value.trim();
+
+        if (!logi || !pass) {
+            mostrarMensaje("Todos los campos deben estar completos.", "error");
+            return;
         }
 
-        function crearUsuario() {
-            const data = obtenerDatosFormulario();
-            if (!data) return;
+        if (!validarNombre(logi)) {
+            mostrarMensaje("El nombre de usuario solo debe contener letras.", "error");
+            return;
+        }
 
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
+        fetch('usuarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ logiUsua: logi, passUsua: pass })
+        })
+        .then(res => res.json())
+        .then(data => {
+            mostrarMensaje(data.mensaje || data.error, data.mensaje ? "exito" : "error");
+            listarUsuarios();
+            document.getElementById("logi").value = "";
+            document.getElementById("pass").value = "";
+            document.getElementById("logi").focus();
+        });
+    }
+
+    function listarUsuarios() {
+        fetch('usuarios')
             .then(res => res.json())
             .then(data => {
-                alert(data.message || "Usuario creado correctamente");
-                listarUsuarios();
-            })
-            .catch(err => alert("Error al crear: " + err));
+                const tbody = document.getElementById("tablaBody");
+                tbody.innerHTML = "";
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr class="no-data"><td colspan="3">No hay datos para mostrar</td></tr>';
+                    return;
+                }
+
+                data.forEach(usuario => {
+                    const fila = document.createElement("tr");
+                    fila.innerHTML = `
+                        <td>${usuario.codiUsua}</td>
+                        <td>${usuario.logiUsua}</td>
+                        <td>${usuario.passUsua}</td>
+                    `;
+                    tbody.appendChild(fila);
+                });
+            });
+    }
+
+    function actualizarUsuario() {
+        const id = document.getElementById("idUpdate").value.trim();
+        const logi = document.getElementById("logiUpdate").value.trim();
+        const pass = document.getElementById("passUpdate").value.trim();
+
+        if (!id || !logi || !pass) {
+            mostrarMensaje("Todos los campos deben estar completos.", "error");
+            return;
         }
 
-        function actualizarUsuario() {
-            const data = obtenerDatosFormulario();
-            if (!data) return;
+        if (!validarNombre(logi)) {
+            mostrarMensaje("El nombre de usuario solo debe contener letras.", "error");
+            return;
+        }
 
-            fetch(url, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
+        fetch('usuarios', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ codiUsua: parseInt(id), logiUsua: logi, passUsua: pass })
+        })
+        .then(res => res.json())
+        .then(data => {
+            mostrarMensaje(data.mensaje || data.error, data.mensaje ? "exito" : "error");
+            listarUsuarios();
+            document.getElementById("idUpdate").value = "";
+            document.getElementById("logiUpdate").value = "";
+            document.getElementById("passUpdate").value = "";
+            document.getElementById("idUpdate").focus();
+        });
+    }
+
+    function eliminarUsuario() {
+        const id = document.getElementById("idDelete").value.trim();
+
+        if (!id) {
+            mostrarMensaje("Debe ingresar el ID del usuario.", "error");
+            return;
+        }
+
+        fetch('usuarios?id=' + id, { method: 'DELETE' })
             .then(res => res.json())
             .then(data => {
-                alert(data.message || "Usuario actualizado correctamente");
+                mostrarMensaje(data.mensaje || data.error, data.mensaje ? "exito" : "error");
                 listarUsuarios();
-            })
-            .catch(err => alert("Error al actualizar: " + err));
-        }
-
-        function eliminarUsuario() {
-            const codigo = document.getElementById('codiUsua').value;
-            if (!codigo) {
-                alert("Ingrese el código del usuario a eliminar.");
-                return;
-            }
-
-            fetch(`${url}?codiUsua=${codigo}`, { method: 'DELETE' })
-                .then(res => res.json())
-                .then(data => {
-                    alert(data.message || "Usuario eliminado correctamente");
-                    listarUsuarios();
-                })
-                .catch(err => alert("Error al eliminar: " + err));
-        }
-
-        function obtenerDatosFormulario() {
-            const codi = parseInt(document.getElementById('codiUsua').value);
-            const login = document.getElementById('logiUsua').value.trim();
-            const pass = document.getElementById('passUsua').value.trim();
-
-            if (!codi || !login || !pass) {
-                alert("Por favor, complete todos los campos.");
-                return null;
-            }
-
-            return { codiUsua: codi, logiUsua: login, passUsua: pass };
-        }
-    </script>
+                document.getElementById("idDelete").value = "";
+                document.getElementById("idDelete").focus();
+            });
+    }
+</script>
 </body>
 </html>
