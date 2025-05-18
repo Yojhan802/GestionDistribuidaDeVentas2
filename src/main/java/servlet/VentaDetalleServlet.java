@@ -38,7 +38,7 @@ public class VentaDetalleServlet extends HttpServlet {
         out.println("<tr><td>Código Cliente</td><td>" + codiClie + "</td></tr>");
         out.println("<tr><td>Fecha Venta</td><td>" + fechVen + "</td></tr>");
         out.println("</table>");
-        out.println("<br><div style='text-align:center'><a href='venta.html'>← Volver</a></div>");
+        out.println("<br><div style='text-align:center'><a href='index.html'>← Volver</a></div>");
         out.println("</body></html>");
     }
 }
