@@ -6,6 +6,8 @@
     <class>dto.Producto</class>
     <class>dto.Cliente</class>
     <class>dto.Kardex</class>
+    <class>dto.Venta</class>
+    <class>dto.Detalle</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/distribuido?zeroDateTimeBehavior=CONVERT_TO_NULL"/>

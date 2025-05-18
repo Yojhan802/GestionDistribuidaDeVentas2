@@ -6,15 +6,19 @@ package dto;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.Collection;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -30,6 +34,9 @@ import javax.validation.constraints.Size;
     @NamedQuery(name = "Producto.findByPrecProd", query = "SELECT p FROM Producto p WHERE p.precProd = :precProd"),
     @NamedQuery(name = "Producto.findByStocProd", query = "SELECT p FROM Producto p WHERE p.stocProd = :stocProd")})
 public class Producto implements Serializable {
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "codiProd")
+    private Collection<Detalle> detalleCollection;
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -108,6 +115,15 @@ public class Producto implements Serializable {
     @Override
     public String toString() {
         return "dto.Producto[ codiProd=" + codiProd + " ]";
+    }
+
+    @XmlTransient
+    public Collection<Detalle> getDetalleCollection() {
+        return detalleCollection;
+    }
+
+    public void setDetalleCollection(Collection<Detalle> detalleCollection) {
+        this.detalleCollection = detalleCollection;
     }
     
 }
