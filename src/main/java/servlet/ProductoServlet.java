@@ -40,14 +40,39 @@ public class ProductoServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
-        //Obtenemos persistencia
+        
         EntityManager em = getEntityManager();
-        try {
-            //Lista productos
+    try {
+        String codiProdParam = request.getParameter("codiProd");
+
+        // Si envían el código por parámetro, buscar solo ese producto
+        if (codiProdParam != null) {
+            try {
+                int codiProd = Integer.parseInt(codiProdParam);
+                Producto producto = em.find(Producto.class, codiProd);
+
+                if (producto != null) {
+                    JSONObject obj = new JSONObject();
+                    obj.put("codiProd", producto.getCodiProd());
+                    obj.put("nombProd", producto.getNombProd());
+                    obj.put("precProd", producto.getPrecProd());
+                    obj.put("stocProd", producto.getStocProd());
+
+                    PrintWriter out = response.getWriter();
+                    out.print(obj.toString());
+                    out.flush();
+                } else {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Producto no encontrado");
+                }
+            } catch (NumberFormatException e) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Código inválido");
+            }
+        } else {
+            // Si no hay parámetro, devuelve todos los productos
             List<Producto> productos = em.createNamedQuery("Producto.findAll", Producto.class).getResultList();
-            //Crea objeto json
+            
             JSONArray jsonArray = new JSONArray();
-            //Conversion en formato json
+            
             for (Producto p : productos) {
                 JSONObject obj = new JSONObject();
                 obj.put("codiProd", p.getCodiProd());
@@ -56,19 +81,16 @@ public class ProductoServlet extends HttpServlet {
                 obj.put("stocProd", p.getStocProd());
                 jsonArray.put(obj);
             }
-            //Envia respuesta
-            response.setContentType("application/json");
-            //Valida en español
-            response.setCharacterEncoding("UTF-8");
-            //Imprime
+            
             PrintWriter out = response.getWriter();
             out.print(jsonArray.toString());
-            //Envia datos
+            
             out.flush();
-        } finally {
-            em.close();
         }
+    } finally {
+        em.close();
     }
+}
 
     //Agregar
     @Override

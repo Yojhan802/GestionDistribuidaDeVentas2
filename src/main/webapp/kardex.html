@@ -152,7 +152,8 @@
     </div>
 
     <h3>Registros Kardex</h3>
-    <table id="listaKardex">
+    <p id ="mensajesSinRegistro">No hay registro en el Kardex.</p>
+    <table id="listaKardex" style="display: none;">
         <thead>
             <tr>
                 <th>Producto</th>
@@ -196,32 +197,42 @@
 
 
   function listarKardex() {
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        const tabla = document.getElementById('listaKardex').getElementsByTagName('tbody')[0];
-        tabla.innerHTML = '';
-        data.forEach(k => {
-          const fila = document.createElement('tr');
-          fila.innerHTML = `
-            <td>${k.codiKard}</td>
-            <td>${k.cantProd}</td>
-            <td>${k.saldProd}</td>
-            <td>${k.moviKard}</td>
-            <td>${k.codiProd}</td>
-          `;
-          tabla.appendChild(fila);
-        });
-      })
-  }
+   fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      const tabla = document.getElementById('listaKardex');
+      const cuerpoTabla = tabla.getElementsByTagName('tbody')[0];
+      const mensaje = document.getElementById('mensajesSinRegistro');
+      cuerpoTabla.innerHTML = '';
+      
+        if (data.length === 0) {
+        tabla.style.display = 'none';
+        mensaje.style.display = 'block';
+        }else{
+            data.forEach(k => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+          <td>${k.codiKard}</td>
+          <td>${k.cantProd}</td>
+          <td>${k.saldProd}</td>
+          <td>${k.moviKard}</td>
+          <td>${k.codiProd}</td>
+        `;
+            cuerpoTabla.appendChild(fila);
+            });
+            tabla.style.display = 'table';
+            mensaje.style.display = 'none';   
+            }
+      
+    });
+}
 
   function crearKardex() {
     const data = {
-      codiKard: parseInt(document.getElementById('codiKard').value),
+      codiProd: parseInt(document.getElementById('codiProd').value),  
       cantProd: parseInt(document.getElementById('cantProd').value),
       saldProd: parseInt(document.getElementById('saldProd').value),
-      moviKard: parseInt(document.getElementById('moviKard').value),
-      codiProd: parseInt(document.getElementById('codiProd').value)
+      moviKard: parseInt(document.getElementById('moviKard').value)
     };
 
     fetch(url, {
@@ -242,11 +253,10 @@
 
   function actualizarKardex() {
     const data = {
-      codiKard: parseInt(document.getElementById('codiKard').value),
+      codiProd: parseInt(document.getElementById('codiProd').value),
       cantProd: parseInt(document.getElementById('cantProd').value),
       saldProd: parseInt(document.getElementById('saldProd').value),
-      moviKard: parseInt(document.getElementById('moviKard').value),
-      codiProd: parseInt(document.getElementById('codiProd').value)
+      moviKard: parseInt(document.getElementById('moviKard').value)
     };
 
     fetch(url, {
@@ -266,14 +276,14 @@
   }
 
   function eliminarKardex() {
-    const codigo = document.getElementById('codiKard').value;
+    const codigo = document.getElementById('codiProd').value;
 
     if (!codigo) {
       alert(" Por favor, ingresa el código del Kardex a eliminar.");
       return;
     }
 
-    fetch(`${url}?codiKard=${codigo}`, {
+    fetch(`${url}?codiProd=${codigo}`, {
       method: 'DELETE'
     }).then(res => {
       if (res.ok) {
@@ -285,7 +295,7 @@
     }).catch(err => alert("Error al eliminar (catch): " + err));
   }
 
-  window.onload = listarKardex;
+
 </script>
 </body>
 </html>
