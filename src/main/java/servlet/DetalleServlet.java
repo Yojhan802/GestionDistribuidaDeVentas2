@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
-@WebServlet(name = "DetalleServlet", urlPatterns = {"detalle"})
+@WebServlet(name = "DetalleServlet", urlPatterns = {"/detalle"})
 public class DetalleServlet extends HttpServlet {
 
     private DetalleJpaController controladorDetalle = new DetalleJpaController();
