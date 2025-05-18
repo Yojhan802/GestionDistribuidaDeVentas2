@@ -1,6 +1,7 @@
 package servlet;
 
 import dao.KardexJpaController;
+import dao.ProductoJpaController;
 import dao.exceptions.NonexistentEntityException;
 import dto.Kardex;
 import dto.Producto;
@@ -8,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.servlet.ServletException;
@@ -21,6 +23,7 @@ public class KardexServlet extends HttpServlet {
 
     private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
     private final KardexJpaController kardexController = new KardexJpaController(emf);
+    private final ProductoJpaController productoController = new ProductoJpaController();
 
     // GET: Listar Kardex
     @Override
@@ -61,8 +64,12 @@ public class KardexServlet extends HttpServlet {
             sb.append(line);
         }
         JSONObject json = new JSONObject(sb.toString());
-
-        try {
+        
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
+        EntityManager em = emf.createEntityManager();
+        
+        try{
+        
             Kardex kardex = new Kardex();
             kardex.setCodiKard(json.getInt("codiKard"));
             kardex.setCantProd(json.getInt("cantProd"));
@@ -70,18 +77,23 @@ public class KardexServlet extends HttpServlet {
             kardex.setMoviKard(json.getInt("moviKard"));
 
             // Relación con Producto
-            Producto prod = new Producto();
-            prod.setCodiProd(json.getInt("codiProd"));
+            int codiProd = json.getInt("codiProd");
+            Producto prod = em.find(Producto.class,codiProd);
+            if (prod == null) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST,"El codigo de producto no existe");
+                return;
+            }
             kardex.setCodiProd(prod);
-
+            
             kardexController.create(kardex);
             response.setStatus(HttpServletResponse.SC_CREATED);
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "No se puede crear correctamente el kerdex:"
-                                                                                                                                                + "\n"+"revise código de producto, o algun campo vacío");
+    }catch(Exception e){
+        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+    }finally{
+            em.close();
         }
     }
-
+    
     // PUT: Modificar Kardex
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response)
@@ -94,6 +106,9 @@ public class KardexServlet extends HttpServlet {
         String line;
         while ((line = reader.readLine()) != null) sb.append(line);
         JSONObject json = new JSONObject(sb.toString());
+        
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
+        EntityManager em = emf.createEntityManager();
 
         try {
             Integer codiKard = json.getInt("codiKard");
@@ -103,16 +118,22 @@ public class KardexServlet extends HttpServlet {
                 kardex.setSaldProd(json.getInt("saldProd"));
                 kardex.setMoviKard(json.getInt("moviKard"));
 
-                Producto prod = new Producto();
-                prod.setCodiProd(json.getInt("codiProd"));
+                int codiProd = json.getInt("codiProd");
+                Producto prod = em.find(Producto.class, codiProd);
+                if (prod == null) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST,"El codigo de producto no existe");
+                    return;
+                }
                 kardex.setCodiProd(prod);
-
+                
                 kardexController.edit(kardex); 
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Kardex no encontrado");
             }
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }finally{
+            em.close();
         }
     }
 
