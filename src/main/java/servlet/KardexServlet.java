@@ -57,7 +57,9 @@ public class KardexServlet extends HttpServlet {
         BufferedReader reader = request.getReader();
         StringBuilder sb = new StringBuilder();
         String line;
-        while ((line = reader.readLine()) != null) sb.append(line);
+        while ((line = reader.readLine()) != null){
+            sb.append(line);
+        }
         JSONObject json = new JSONObject(sb.toString());
 
         try {
@@ -75,7 +77,8 @@ public class KardexServlet extends HttpServlet {
             kardexController.create(kardex);
             response.setStatus(HttpServletResponse.SC_CREATED);
         } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "No se puede crear correctamente el kerdex:"
+                                                                                                                                                + "\n"+"revise código de producto, o algun campo vacío");
         }
     }
 
@@ -104,7 +107,7 @@ public class KardexServlet extends HttpServlet {
                 prod.setCodiProd(json.getInt("codiProd"));
                 kardex.setCodiProd(prod);
 
-                kardexController.edit(kardex);
+                kardexController.edit(kardex); 
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Kardex no encontrado");
             }
