@@ -14,11 +14,16 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 public class ClienteJpaController implements Serializable {
-    private EntityManagerFactory emf  = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
+    private EntityManagerFactory emf  = null;
 
     public ClienteJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
+
+    public ClienteJpaController() {
+        emf= Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
+    }
+    
 
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
