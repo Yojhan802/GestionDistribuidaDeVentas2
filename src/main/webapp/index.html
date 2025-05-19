@@ -8,18 +8,18 @@
     <title>Inicio - Gestión Distribuida de Ventas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Modern blue palette combined with sophisticated design */
+        /* Modern black and gray palette combined with sophisticated design */
         body {
-            background: linear-gradient(135deg, #0D47A1 0%, #42A5F5 100%);
+            background: linear-gradient(135deg, #000000 0%, #555555 100%);
             font-family: 'Poppins', sans-serif;
             color: #FFFFFF; /* Cambiado a blanco */
         }
 
         header {
             backdrop-filter: blur(20px);
-            background-color: rgba(0, 81, 153, 0.7);
-            border-bottom: 2px solid #BBDEFB;
-            box-shadow: 0 4px 30px rgba(0, 81, 153, 0.3);
+            background-color: rgba(50, 50, 50, 0.7);
+            border-bottom: 2px solid #CCCCCC;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -29,12 +29,12 @@
             font-weight: 900;
             font-size: 2.7rem;
             letter-spacing: 0.1em;
-            text-shadow: 0 0 8px #BBDEFB;
+            text-shadow: 0 0 8px #CCCCCC;
         }
 
         p.header-subtitle {
             font-weight: 600;
-            color: #E0F7FA; /* Cambiado a un azul claro */
+            color: #DDDDDD; /* Cambiado a un gris claro */
             font-size: 1rem;
             letter-spacing: 0.05em;
             text-transform: uppercase;
@@ -52,7 +52,7 @@
             border-radius: 1rem;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 4px 30px rgba(0, 81, 153, 0.25);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             padding: 2rem 1.5rem;
             display: flex;
@@ -65,12 +65,12 @@
 
         .card:hover {
             transform: scale(1.05);
-            box-shadow: 0 10px 40px rgba(0, 81, 153, 0.7);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
         }
 
         .card-title {
             font-size: 1.125rem;
-            color: #BBDEFB; /* Cambiado a azul claro */
+            color: #CCCCCC; /* Cambiado a gris claro */
             font-weight: 600;
             margin-bottom: 0.5rem;
             letter-spacing: 0.1em;
@@ -93,13 +93,13 @@
         }
 
         .btn-access {
-            background: linear-gradient(135deg, #1976D2 0%, #42A5F5 100%);
+            background: linear-gradient(135deg, #333333 0%, #555555 100%);
             color: white;
             font-weight: 700;
             font-size: 1.15rem;
             padding: 1.75rem 1rem;
             border-radius: 1rem;
-            box-shadow: 0 8px 24px rgba(25, 118, 210, 0.7);
+            box-shadow: 0 8px 24px rgba(50, 50, 50, 0.7);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -110,23 +110,23 @@
         }
 
         .btn-access:hover {
-            background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%);
+            background: linear-gradient(135deg, #555555 0%, #333333 100%);
             transform: translateY(-6px);
-            box-shadow: 0 15px 40px rgba(66, 165, 245, 0.9);
+            box-shadow: 0 15px 40px rgba(66, 66, 66, 0.9);
         }
 
         .btn-access svg {
             width: 28px;
             height: 28px;
             fill: #FFFFFF; /* Cambiado a blanco */
-            filter: drop-shadow(0 0 2px rgba(255 255 255 / 0.6));
+            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
         }
 
         /* Alerts */
         .alerts-section {
-            background: #1565C0; /* Otro tono de azul oscuro */
+            background: #444444; /* Otro tono de gris oscuro */
             color: #FFFFFF;
-            border-left: 6px solid #2196F3; /* Otro tono de azul claro */
+            border-left: 6px solid #888888; /* Otro tono de gris claro */
             border-radius: 1rem;
             padding: 1.5rem 2rem;
             font-weight: 600;
@@ -144,7 +144,7 @@
             align-items: center;
             gap: 0.75rem;
             font-size: 1.5rem;
-            color: #BBDEFB; /* Cambiado a azul claro */
+            color: #CCCCCC; /* Cambiado a gris claro */
         }
 
         .alerts-list {
@@ -156,13 +156,13 @@
 
         /* Latest activities - scrollable with nice scrollbar and subtle glow */
         .activities-section {
-            background: rgba(66, 165, 245, 0.4);
+            background: rgba(85, 85, 85, 0.4);
             border-radius: 1rem;
             backdrop-filter: blur(20px);
             padding: 2rem;
             max-width: 800px;
             margin: 3rem auto 0;
-            box-shadow: 0 8px 40px rgba(66, 165, 245, 0.4);
+            box-shadow: 0 8px 40px rgba(85, 85, 85, 0.4);
             user-select: none;
             max-height: 18rem;
             overflow-y: auto;
@@ -174,7 +174,7 @@
             margin-bottom: 1rem;
             color: #FFFFFF; /* Cambiado a blanco */
             letter-spacing: 0.05em;
-            text-shadow: 0 0 8px #BBDEFB; /* Cambiado a azul claro */
+            text-shadow: 0 0 8px #CCCCCC; /* Cambiado a gris claro */
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -199,18 +199,18 @@
         }
 
         .activities-section::-webkit-scrollbar-thumb {
-            background-color: #42A5F5; /* Cambiado a azul */
+            background-color: #555555; /* Cambiado a gris */
             border-radius: 3px;
         }
 
         /* About system section */
         .about-section {
-            background: rgba(0, 81, 153, 0.3);
+            background: rgba(50, 50, 50, 0.3);
             border-radius: 2rem;
             padding: 2.5rem 2rem;
             max-width: 700px;
             margin: 4rem auto 6rem;
-            box-shadow: 0 0 40px 4px rgba(66, 165, 245, 0.6);
+            box-shadow: 0 0 40px 4px rgba(85, 85, 85, 0.6);
             text-align: center;
             user-select: none;
         }
@@ -220,12 +220,12 @@
             font-weight: 900;
             margin-bottom: 1rem;
             color: #FFFFFF; /* Cambiado a blanco */
-            text-shadow: 0 0 10px #BBDEFB; /* Cambiado a azul claro */
+            text-shadow: 0 0 10px #CCCCCC; /* Cambiado a gris claro */
         }
 
         .about-section p {
             font-size: 1.2rem;
-            color: #E0F7FA; /* Cambiado a azul claro */
+            color: #DDDDDD; /* Cambiado a gris claro */
             line-height: 1.8;
             font-weight: 500;
             letter-spacing: 0.02em;
@@ -234,13 +234,13 @@
         footer {
             text-align: center;
             padding: 1.5rem;
-            background: rgba(0, 81, 153, 0.7);
-            color: #BBDEFB; /* Cambiado a azul claro */
+            background: rgba(50, 50, 50, 0.7);
+            color: #CCCCCC; /* Cambiado a gris claro */
             font-weight: 600;
             letter-spacing: 0.05em;
             user-select: none;
             font-size: 0.95rem;
-            border-top: 1px solid #BBDEFB; /* Cambiado a azul claro */
+            border-top: 1px solid #CCCCCC; /* Cambiado a gris claro */
         }
 
         /* Responsive adjustments */
@@ -263,7 +263,8 @@
                 padding: 1.25rem 1rem;
             }
         }
-    </style>
+</style>
+
 </head>
 <body>
     <header class="px-8 py-6 flex flex-col sm:flex-row justify-between items-center">
