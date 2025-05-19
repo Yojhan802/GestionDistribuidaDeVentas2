@@ -175,15 +175,15 @@
   const codiProd = document.getElementById('codiProd').value;
   if (!codiProd) return;
 
-  fetch(`${url}/producto/${codiProd}`)
+  fetch(`http://localhost:8080/GestionDistribuidaDeVentas/producto?codiProd=${codiProd}`)
     .then(response => {
       if (!response.ok) throw new Error("Producto no encontrado");
       return response.json();
     })
     .then(data => {
       // Aquí usamos precioProd para el saldo y stockProd para la cantidad
-      document.getElementById('saldProd').value = data.precioProd;
-      document.getElementById('cantProd').value = data.stockProd;
+      document.getElementById('saldProd').value = data.precProd;
+      document.getElementById('cantProd').value = data.stocProd;
     })
     .catch(error => {
       alert(error.message);

@@ -19,9 +19,9 @@ import org.json.JSONObject;
 
 /**
  *
- * @author ANDREA
+ * 
  */
-@WebServlet(name = "ProductoServlet", urlPatterns = {"/productoservlet"})
+@WebServlet(name = "ProductoServlet", urlPatterns = {"/producto"})
 public class ProductoServlet extends HttpServlet {
     
     //Colocar la persistencia del proyecto

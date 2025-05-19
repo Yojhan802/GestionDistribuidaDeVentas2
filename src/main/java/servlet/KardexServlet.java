@@ -18,7 +18,7 @@ import javax.servlet.http.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-@WebServlet(name = "KardexServlet", urlPatterns = {"/kardex"})
+@WebServlet(name = "KardexServlet", urlPatterns = {"/kardex","/kardex/*"})
 public class KardexServlet extends HttpServlet {
 
     private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
