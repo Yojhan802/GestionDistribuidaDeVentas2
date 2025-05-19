@@ -51,48 +51,48 @@ public class ClienteServlet extends HttpServlet {
     }
 
     @Override
-protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-    EntityManager em = getEntityManager();
-    try {
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = request.getReader().readLine()) != null) {
-            sb.append(line);
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        EntityManager em = getEntityManager();
+        try {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = request.getReader().readLine()) != null) {
+                sb.append(line);
+            }
+            JSONObject jsonObject = new JSONObject(sb.toString());
+            String nombClie = jsonObject.getString("nombClie");
+
+            // Obtener el siguiente código de cliente
+            int codiClie = obtenerSiguienteCodigo(em); // Generar automáticamente el código
+
+            // Crear y persistir el nuevo cliente
+            Cliente cliente = new Cliente();
+            cliente.setCodiClie(codiClie); // Asignar el código generado
+            cliente.setNombClie(nombClie);
+
+            em.getTransaction().begin();
+            em.persist(cliente);
+            em.getTransaction().commit();
+
+            // Enviar un código de estado 201 (Created) para indicar éxito
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            PrintWriter out = response.getWriter();
+            JSONObject successJson = new JSONObject();
+            successJson.put("mensaje", "Cliente agregado con éxito.");
+            out.print(successJson.toString());
+            out.flush();
+
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            // Puedes agregar un mensaje de error aquí si lo deseas
+        } finally {
+            em.close();
         }
-        JSONObject jsonObject = new JSONObject(sb.toString());
-        String nombClie = jsonObject.getString("nombClie");
-
-        // Obtener el siguiente código de cliente
-        int codiClie = obtenerSiguienteCodigo(em); // Generar automáticamente el código
-
-        // Crear y persistir el nuevo cliente
-        Cliente cliente = new Cliente();
-        cliente.setCodiClie(codiClie); // Asignar el código generado
-        cliente.setNombClie(nombClie);
-
-        em.getTransaction().begin();
-        em.persist(cliente);
-        em.getTransaction().commit();
-
-        // Enviar un código de estado 201 (Created) para indicar éxito
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        PrintWriter out = response.getWriter();
-        JSONObject successJson = new JSONObject();
-        successJson.put("mensaje", "Cliente agregado con éxito.");
-        out.print(successJson.toString());
-        out.flush();
-
-    } catch (Exception e) {
-        em.getTransaction().rollback();
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        // Puedes agregar un mensaje de error aquí si lo deseas
-    } finally {
-        em.close();
     }
-}
 
     private int obtenerSiguienteCodigo(EntityManager em) {
         Integer maxCodigo = (Integer) em.createQuery("SELECT MAX(c.codiClie) FROM Cliente c").getSingleResult();
@@ -118,13 +118,38 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
                 em.getTransaction().begin();
                 em.merge(cliente);
                 em.getTransaction().commit();
+
+                // ✅ Agregamos respuesta en formato JSON
                 response.setStatus(HttpServletResponse.SC_OK);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                PrintWriter out = response.getWriter();
+                JSONObject successJson = new JSONObject();
+                successJson.put("mensaje", "Cliente actualizado con éxito.");
+                out.print(successJson.toString());
+                out.flush();
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                PrintWriter out = response.getWriter();
+                JSONObject errorJson = new JSONObject();
+                errorJson.put("error", "Cliente no encontrado.");
+                out.print(errorJson.toString());
+                out.flush();
             }
         } catch (Exception e) {
-            em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            PrintWriter out = response.getWriter();
+            JSONObject errorJson = new JSONObject();
+            errorJson.put("error", "Error al actualizar el cliente.");
+            out.print(errorJson.toString());
+            out.flush();
         } finally {
             em.close();
         }
