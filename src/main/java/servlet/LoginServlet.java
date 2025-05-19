@@ -1,5 +1,3 @@
-package servlet;
-
 import dto.Usuario;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -14,7 +12,8 @@ import jakarta.persistence.TypedQuery;
 
 import java.io.IOException;
 
-@WebServlet(name = "LoginServlet", urlPatterns = {"/loginservlet"})
+
+@WebServlet(name = "LoginServlet", urlPatterns = {"/Servlet"})
 public class LoginServlet extends HttpServlet {
 
     private EntityManagerFactory emf;
