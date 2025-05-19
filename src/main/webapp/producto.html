@@ -227,7 +227,7 @@
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ accion: "eliminar", codiProd: codi })  // <--- aquí
+        body: JSON.stringify({ accion: "delete", codiProd: codi })  // <--- aquí
     })
     .then(response => {
         if (!response.ok) {

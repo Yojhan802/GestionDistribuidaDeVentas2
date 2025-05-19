@@ -66,7 +66,7 @@ public class KardexServlet extends HttpServlet {
         JSONObject json = new JSONObject(sb.toString());
 
     
-    EntityManager em = emf.createEntityManager();
+        EntityManager em = emf.createEntityManager();
 
     try {
             // Validar que el JSON tenga codiProd y que no sea null
@@ -74,13 +74,7 @@ public class KardexServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Falta el código de producto");
                 return;
             }
-
-            Kardex kardex = new Kardex();
-
-            kardex.setCantProd(json.getInt("cantProd"));
-            kardex.setSaldProd(json.getInt("saldProd"));
-            kardex.setMoviKard(json.getInt("moviKard"));
-
+            
             // Relación con Producto
             int codiProd = json.getInt("codiProd");
             Producto prod = em.find(Producto.class, codiProd);
@@ -88,8 +82,15 @@ public class KardexServlet extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST,"El código de producto no existe");
                 return;
             }
-            kardex.setCodiProd(prod);
+            
+            Kardex kardex = new Kardex();
+            kardex.setCantProd(json.getInt("cantProd"));
+//            kardex.setSaldProd(json.getInt("saldProd"));
+            kardex.setMoviKard(json.getInt("moviKard"));
+            kardex.setSaldProd(json.getInt("stocProd"));
 
+            
+            kardex.setCodiProd(prod);
             kardexController.create(kardex);
             response.setStatus(HttpServletResponse.SC_CREATED);
         } catch(Exception e) {
@@ -136,7 +137,7 @@ public class KardexServlet extends HttpServlet {
 
             if (kardex != null) {
                 kardex.setCantProd(json.getInt("cantProd"));
-                kardex.setSaldProd(json.getInt("saldProd"));
+                kardex.setSaldProd(json.getInt("stocProd"));
                 kardex.setMoviKard(json.getInt("moviKard"));
 
                 Producto prod = em.find(Producto.class, codiProd);

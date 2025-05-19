@@ -130,13 +130,13 @@
     </div>
     
     <div class="input-group">
-        <label for="saldProd">Saldo:</label>
-        <input type="number" id="saldProd">
-    </div>
-
-    <div class="input-group">
         <label for="cantProd">Cantidad:</label>
         <input type="number" id="cantProd">
+    </div>
+    
+    <div class="input-group">
+        <label for="saldProd">Stock actual:</label>
+        <input type="number" id="saldProd" >
     </div>
 
     <div class="input-group">
@@ -182,8 +182,7 @@
     })
     .then(data => {
       // Aquí usamos precioProd para el saldo y stockProd para la cantidad
-      document.getElementById('saldProd').value = data.precProd;
-      document.getElementById('cantProd').value = data.stocProd;
+      document.getElementById('saldProd').value = data.stocProd;
     })
     .catch(error => {
       alert(error.message);
@@ -215,8 +214,8 @@
             const movimientoTexto = k.moviKard === 1 ? 'Entrada' : 'Salida';
             fila.innerHTML = `
           <td>${k.codiProd}</td>
-          <td>${k.saldProd}</td>
           <td>${k.cantProd}</td>
+          <td>${k.saldProd}</td>
           <td>${movimientoTexto}</td>
           
         `;
@@ -244,7 +243,7 @@
     const data = {
         codiProd,
         cantProd,
-        saldProd,
+        stocProd: saldProd,
         moviKard
     };
     console.log("Datos a enviar: ",data);
@@ -276,7 +275,7 @@
       return;
     }
 
-    const data = { codiProd, cantProd, saldProd, moviKard };
+    const data = { codiProd, cantProd, stocProd:saldProd, moviKard };
 
     fetch(url, {
       method: 'PUT',
