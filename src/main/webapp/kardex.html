@@ -232,24 +232,22 @@
     }
 
   function crearKardex() {
-      codiProd = parseInt(document.getElementById('codiProd').value);  
-      cantProd = parseInt(document.getElementById('cantProd').value);
-      saldProd = parseInt(document.getElementById('saldProd').value);
-      moviKard = parseInt(document.getElementById('moviKard').value);
+      const codiProd = parseInt(document.getElementById('codiProd').value);  
+      const cantProd = parseInt(document.getElementById('cantProd').value);
+      const saldProd = parseInt(document.getElementById('saldProd').value);
+      const moviKard = parseInt(document.getElementById('moviKard').value);
       if (isNaN(codiProd) || isNaN(cantProd) || isNaN(saldProd) || isNaN(moviKard)) {
-    alert("Todos los campos son obligatorios y deben ser números válidos.");
-    return;
+        alert("Todos los campos son obligatorios y deben ser números válidos.");
+        return;
     }
-    if (moviKard !== 1 && moviKard !== 2) {
-      alert("El movimiento debe ser 1 (Entrada) o 2 (Salida).");
-      return;
-    }
+    
     const data = {
         codiProd,
         cantProd,
         saldProd,
         moviKard
     };
+    console.log("Datos a enviar: ",data);
 
     fetch(url, {
       method: 'POST',
@@ -304,7 +302,7 @@
       return;
     }
 
-    fetch(`${url}?codiProd=${codiProd}`, {
+    fetch(`${url}?codiProd=${codigo}`, {
       method: 'DELETE'
     }).then(res => {
       if (res.ok) {

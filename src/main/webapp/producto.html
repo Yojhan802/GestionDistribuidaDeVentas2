@@ -6,110 +6,101 @@
         <title>Gestión de Productos</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
         <style>
-            body {
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 30px;
-            background-color: #f0f2f5;
-        }
+             body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      padding: 30px;
+    }
 
-        h1 {
-            text-align: center;
-            color: #004080;
-            font-size: 28px;
-        }
+    h1 {
+      text-align: center;
+      color: #004080;
+    }
 
-        form {
-            background-color: #ffffff;
-            padding: 20px;
-            margin: 20px auto;
-            border-radius: 12px;
-            width: 350px;
-            box-shadow: 0 0 12px rgba(0,0,0,0.08);
-        }
+    form {
+      background: #fff;
+      width: 350px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
 
-        form label {
-            display: block;
-            font-weight: bold;
-            margin-top: 10px;
-            font-size: 14px;
-        }
+    form input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
 
-        form input {
-            width: 100%;
-            padding: 6px 10px;
-            font-size: 14px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
+    form button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      font-weight: bold;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
 
-        form button {
-            margin-top: 15px;
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            font-size: 15px;
-            font-weight: bold;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            
-        }
+    form button:hover {
+      background: #0056b3;
+    }
 
-        form button:hover {
-            background-color: #0056b3;
-        }
+    table {
+      width: 90%;
+      margin: 30px auto;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      border-radius: 10px;
+      overflow: hidden;
+    }
 
-        table {
-            width: 90%;
-            margin: 30px auto;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 0 12px rgba(0,0,0,0.05);
-            border-radius: 8px;
-            overflow: hidden;
-        }
+    table th, table td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
 
-        table th, table td {
-            padding: 10px 12px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
+    table th {
+      background-color: #28a745;
+      color: white;
+    }
 
-        table th {
-            background-color: #28a745;
-            color: #fff;
-            font-weight: bold;
-        }
+    .acciones button {
+      padding: 6px 12px;
+      margin: 0 4px;
+      border-radius: 20px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
 
-        .acciones button {
-            margin: 0 4px;
-            padding: 5px 10px;
-            font-size: 13px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-        }
+    .btn-editar {
+      background: #ffc107;
+      color: black;
+    }
 
-        .btn-editar {
-            background-color: #ffc107;
-            color: #000;
-        }
+    .btn-editar:hover {
+      background: #e0a800;
+    }
 
-        .btn-eliminar {
-            background-color: #dc3545;
-            color: white;
-        }
+    .btn-eliminar {
+      background: #dc3545;
+      color: white;
+    }
 
-        .btn-editar:hover {
-            background-color: #e0a800;
-        }
-
-        .btn-eliminar:hover {
-            background-color: #c82333;
-        }
+    .btn-eliminar:hover {
+      background: #c82333;
+    }
 
             
         </style>
@@ -161,7 +152,7 @@
 
                 const metodo = modoEditar ? 'PUT' : 'POST';
 
-                fetch('productoservlet', {
+                fetch('producto', {
                 method: metodo,
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(producto)
@@ -186,47 +177,78 @@
             });
             });
 
-            function cargarProductos() {
-                fetch('productoservlet')
-                        .then(res => res.json())
-                        .then(data => {
-                            tabla.innerHTML = '';
-                            data.forEach(p => {
-                                const fila = document.createElement('tr');
-                                fila.innerHTML = `
-                    <td>${p.codiProd}</td>
-                    <td>${p.nombProd}</td>
-                    <td>${p.precProd}</td>
-                    <td>${p.stocProd}</td>
-                    <td>
-                      <button onclick='editar(${p.codiProd})'>Editar</button>
-                      <button onclick='eliminar(${p.codiProd})'>Eliminar</button>
-                    </td>`;
-                                tabla.appendChild(fila);
-                            });
-                        });
-            }
-
-            function editar(codi) {
-                fetch(`productoservlet`)
-                        .then(res => res.json())
-                        .then(data => {
-                            const prod = data.find(p => p.codiProd === codi);
-                            if (prod) {
-                                document.getElementById('codiProd').value = prod.codiProd;
-                                document.getElementById('nombProd').value = prod.nombProd;
-                                document.getElementById('precProd').value = prod.precProd;
-                                document.getElementById('stocProd').value = prod.stocProd;
-                                modoEditar = true;
-                            }
-                        });
-            }
-
+             function cargarProductos() {
+            fetch('producto')
+            .then(res => res.json())
+            .then(data => {
+                tabla.innerHTML = '';
+                data.forEach(p => {
+                    const fila = document.createElement('tr');
+                    fila.innerHTML = `
+                        <td>${p.codiProd}</td>
+                        <td>${p.nombProd}</td>
+                        <td>${p.precProd}</td>
+                        <td>${p.stocProd}</td>
+                        <td>
+                            <button class="btn-editar" onclick='editar(${p.codiProd})'>Editar</button>
+                            <button class="btn-eliminar" onclick='eliminar(${p.codiProd})'>Eliminar</button>
+                        </td>`;
+                    tabla.appendChild(fila);
+                });
+            });
+        }
+            
+            
+            function editar(codigo) {
+            fetch(`producto?codiProd=${codigo}`)
+            .then(res => {
+            if (!res.ok) throw new Error("Producto no encontrado");
+            return res.json();
+        })
+            .then(p => {
+            document.getElementById('codiProd').value = p.codiProd;
+            document.getElementById('nombProd').value = p.nombProd;
+            document.getElementById('precProd').value = p.precProd;
+            document.getElementById('stocProd').value = p.stocProd;
+            modoEditar = true;
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // sube al form
+        })
+            .catch(err => {
+            alert("❌ Error al cargar producto: " + err.message);
+        });
+  }
+            
+            
             function eliminar(codi) {
-                fetch(`productoservlet?codiProd=${codi}`, {method: 'DELETE'})
-                        .then(() => cargarProductos());
-            }
+    if (!confirm("¿Estás seguro de que deseas eliminar el producto?")) return;
 
+    fetch(`producto`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ accion: "eliminar", codiProd: codi })  // <--- aquí
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`Error ${response.status}: ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Producto eliminado:", data);
+        alert(`✅ Producto ${codi} eliminado exitosamente`);
+        cargarProductos();
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("❌ No se pudo eliminar el producto: " + error.message);
+    });
+}
+
+    
             // Inicializa la tabla
             cargarProductos();
         </script>
