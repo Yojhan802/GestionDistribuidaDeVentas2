@@ -11,11 +11,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
 import java.io.IOException;
-import javax.persistence.NoResultException;
 
-@WebServlet(name = "LoginServlet", urlPatterns = {"/Servlet"})
+@WebServlet(name = "LoginServlet", urlPatterns = {"/login"}) // Cambiamos la URL pattern a /login
 public class LoginServlet extends HttpServlet {
 
     private EntityManagerFactory emf;
@@ -38,7 +36,6 @@ public class LoginServlet extends HttpServlet {
         }
 
         EntityManager em = emf.createEntityManager();
-        Usuario user = null;
 
         try {
             TypedQuery<Usuario> query = em.createQuery(
@@ -46,25 +43,24 @@ public class LoginServlet extends HttpServlet {
             query.setParameter("username", username);
             query.setParameter("password", password);
 
-            user = query.getSingleResult();
+            Usuario user = null;
+            try {
+                user = query.getSingleResult();
+            } catch (Exception e) {
+                // Usuario no encontrado
+            }
 
-        } catch (NoResultException e) {
-            // No hace falta hacer nada, el usuario quedará como null
-        } catch (Exception e) {
-            response.sendRedirect("login.html?error=Error%20en%20la%20consulta");
-            return;
+            if (user != null) {
+                HttpSession session = request.getSession();
+                session.setAttribute("usuario", user);
+                response.sendRedirect("index.html");
+            } else {
+                response.sendRedirect("login.html?error=Usuario%20o%20contraseña%20incorrectos");
+            }
+
         } finally {
             em.close();
         }
-
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("usuario", user);
-            response.sendRedirect(request.getContextPath() + "/index.html");
-        } else {
-            response.sendRedirect("login.html?error=Usuario%20o%20contraseña%20incorrectos");
-        }
-
     }
 
     @Override
