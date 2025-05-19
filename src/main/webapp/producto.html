@@ -142,18 +142,19 @@
                 e.preventDefault();
 
                 let producto = {
-                    nombProd: document.getElementById('nombProd').value,
+                    nombProd: document.getElementById('nombProd').value.trim(),
                     precProd: parseFloat(document.getElementById('precProd').value),
                     stocProd: parseFloat(document.getElementById('stocProd').value)
                 };
                 if (modoEditar) {
                 producto.codiProd = parseInt(document.getElementById('codiProd').value);
                 }
+                console.log("Enviando producto: ",producto);
 
-                const metodo = modoEditar ? 'PUT' : 'POST';
+                
 
                 fetch('producto', {
-                method: metodo,
+                method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(producto)
                 })
@@ -161,20 +162,21 @@
                 if (!response.ok) {
                 return response.text().then(msg => { throw new Error(msg); });
             }
-                return response;
+                return response.json();
             })
-            .then(() => {
-            form.reset();
-            modoEditar = false;
-            cargarProductos();
+            .then(data => {
+                alert(`✅ ${data.message}`);
+                form.reset();
+                modoEditar = false;
+                cargarProductos();
             })
             .catch(error => {
-            alert("❌ Error: " + error.message);
+                alert("❌ Error: " + error.message);
             // Limpiar campos si hay error (como duplicado)
-            document.getElementById('nombProd').value = '';
-            document.getElementById('precProd').value = '';
-            document.getElementById('stocProd').value = '';
-            });
+                document.getElementById('nombProd').value = '';
+                document.getElementById('precProd').value = '';
+                document.getElementById('stocProd').value = '';
+                });
             });
 
              function cargarProductos() {
@@ -195,7 +197,8 @@
                         </td>`;
                     tabla.appendChild(fila);
                 });
-            });
+            })
+            .catch(err => alert("Error cargando productos: " + err.message));
         }
             
             
@@ -213,40 +216,26 @@
             modoEditar = true;
             window.scrollTo({ top: 0, behavior: 'smooth' }); // sube al form
         })
-            .catch(err => {
-            alert("❌ Error al cargar producto: " + err.message);
-        });
+            .catch(err => alert("❌ Error al cargar producto: " + err.message));
   }
             
             
             function eliminar(codi) {
-    if (!confirm("¿Estás seguro de que deseas eliminar el producto?")) return;
+                if (!confirm("¿Eliminar producto?")) return;
 
-    fetch(`producto`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ accion: "delete", codiProd: codi })  // <--- aquí
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => {
-                throw new Error(`Error ${response.status}: ${text}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Producto eliminado:", data);
-        alert(`✅ Producto ${codi} eliminado exitosamente`);
-        cargarProductos();
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("❌ No se pudo eliminar el producto: " + error.message);
-    });
-}
+                fetch(`producto?codiProd=${codi}`, {
+                method: 'DELETE'
+            })
+                .then(res => {
+                if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+                return res.json();
+            })
+                .then(json => {
+                alert(json.message);
+                cargarProductos();
+         })
+                .catch(err => alert("Error al eliminar: " + err));
+            }
 
     
             // Inicializa la tabla

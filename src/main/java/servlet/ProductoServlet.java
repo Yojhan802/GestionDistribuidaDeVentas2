@@ -1,6 +1,8 @@
 package servlet;
 
 import dto.Producto;
+import dao.ProductoJpaController;
+import dao.exceptions.NonexistentEntityException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,7 +29,9 @@ public class ProductoServlet extends HttpServlet {
     //Colocar la persistencia del proyecto
     @PersistenceUnit(unitName = "com.mycompany_TPD06_war_1.0-SNAPSHOTPU")
     private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
-
+    private final ProductoJpaController productoController = new ProductoJpaController(emf);
+    
+    
     private EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
@@ -113,24 +117,7 @@ public class ProductoServlet extends HttpServlet {
 
     try {
         // Si el JSON contiene la acción "delete", procesamos eliminación
-        if (json.has("action") && "delete".equalsIgnoreCase(json.getString("action"))) {
-            int codiProd = json.getInt("codiProd");
-
-            em.getTransaction().begin();
-            Producto producto = em.find(Producto.class, codiProd);
-            if (producto == null) {
-                em.getTransaction().rollback();
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Producto no encontrado");
-                return;
-            }
-            em.remove(producto);
-            em.getTransaction().commit();
-
-            // Respuesta con el producto eliminado
-            response.getWriter().write(producto.toString());
-            return;
-        }
-
+        
         // Si no es eliminación, asumimos creación o actualización
         Producto producto;
         if (json.has("codiProd")) {
@@ -155,15 +142,20 @@ public class ProductoServlet extends HttpServlet {
         producto.setStocProd(json.getDouble("stocProd"));
 
         em.getTransaction().begin();
-        if (!em.contains(producto)) {
-            em.persist(producto); // Para creación
+        if (json.has("codiProd")) {
+            em.merge(producto); // actualización
         } else {
-            em.merge(producto);   // Para actualización
+            em.persist(producto); // creación
         }
-        em.getTransaction().commit();
+        JSONObject resp = new JSONObject();
+        resp.put("status", "success");
+        resp.put("message", "Producto creado/actualizado");
+        resp.put("codiProd", producto.getCodiProd());
+        resp.put("nombProd", producto.getNombProd());
+        resp.put("precProd", producto.getPrecProd());
+        resp.put("stocProd", producto.getStocProd());
 
-        response.setStatus(HttpServletResponse.SC_CREATED);
-        response.getWriter().write(producto.toString());
+        response.getWriter().write(resp.toString());
 
     } catch (Exception e) {
         if (em.getTransaction().isActive()) {
@@ -271,55 +263,24 @@ public class ProductoServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
-        String codiParam = null;
-        String queryString = request.getQueryString();
-        if (queryString != null) {
-        for (String param : queryString.split("&")) {
-            String[] pair = param.split("=");
-            if (pair.length == 2 && pair[0].equals("codiProd")) {
-                codiParam = java.net.URLDecoder.decode(pair[1], "UTF-8");
-                break;
-            }
+        String param = request.getParameter("codiProd");
+        if (param == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Falta el parámetro codiProd");
+            return;
         }
-    }
 
-        if (codiParam == null || codiParam.trim().isEmpty()) {
-        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Falta parámetro codiProd");
-        return;
-    }
-
-        int codiProd;
         try {
-        codiProd = Integer.parseInt(codiParam);
+            int codiProd = Integer.parseInt(param);
+            productoController.destroy(codiProd);
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter()
+                    .write("{\"message\":\"Producto eliminado correctamente\"}");
         } catch (NumberFormatException e) {
-        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Código inválido");
-        return;
-        }
-
-        EntityManager em = getEntityManager();
-        try {
-        em.getTransaction().begin();
-        Producto producto = em.find(Producto.class, codiProd);
-        if (producto != null) {
-            em.remove(producto);
-            em.getTransaction().commit();
-
-            JSONObject obj = new JSONObject();
-            obj.put("status", "eliminado");
-            obj.put("codiProd", codiProd);
-
-            PrintWriter out = response.getWriter();
-            out.print(obj.toString());
-            out.flush();
-
-        } else {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "codiProd inválido");
+        } catch (NonexistentEntityException e) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Producto no encontrado");
-        }
         } catch (Exception e) {
-        em.getTransaction().rollback();
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        } finally {
-        em.close();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 }

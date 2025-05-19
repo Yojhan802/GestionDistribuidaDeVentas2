@@ -4,14 +4,17 @@
  */
 package dto;
 
+import jakarta.jms.Connection;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
+import java.sql.PreparedStatement;
 import java.util.Collection;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -112,7 +115,7 @@ public class Producto implements Serializable {
         }
         return true;
     }
-
+    
     @Override
     public String toString() {
         return "dto.Producto[ codiProd=" + codiProd + " ]";
