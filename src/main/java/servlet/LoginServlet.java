@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebServlet(name = "LoginServlet", urlPatterns = {"/Servlet"}) 
+@WebServlet(name = "LoginServlet", urlPatterns = {"Servlet"})
 public class LoginServlet extends HttpServlet {
 
     private EntityManagerFactory emf;
@@ -53,7 +53,7 @@ public class LoginServlet extends HttpServlet {
             if (user != null) {
                 HttpSession session = request.getSession();
                 session.setAttribute("usuario", user);
-                response.sendRedirect("index.html");
+                response.sendRedirect("/index.html");
             } else {
                 response.sendRedirect("login.html?error=Usuario%20o%20contraseña%20incorrectos");
             }
