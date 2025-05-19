@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>📦 Gestión de Kardex</title>
+  <title>Gestión de Kardex</title>
   <style>
-      * body {
+      body {
           font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
           background-color: #f5f7fa;
           color: #333;
@@ -189,6 +189,7 @@
       alert(error.message);
       document.getElementById('cantProd').value = '';
       document.getElementById('saldProd').value = '';
+      document.getElementById('moviKard').value = '';
     });
 }
 
@@ -210,29 +211,44 @@
         mensaje.style.display = 'block';
         }else{
             data.forEach(k => {
-                const fila = document.createElement('tr');
-                fila.innerHTML = `
-          <td>${k.codiKard}</td>
-          <td>${k.cantProd}</td>
-          <td>${k.saldProd}</td>
-          <td>${k.moviKard}</td>
+            const fila = document.createElement('tr');
+            const movimientoTexto = k.moviKard === 1 ? 'Entrada' : 'Salida';
+            fila.innerHTML = `
           <td>${k.codiProd}</td>
+          <td>${k.saldProd}</td>
+          <td>${k.cantProd}</td>
+          <td>${movimientoTexto}</td>
+          
         `;
             cuerpoTabla.appendChild(fila);
             });
             tabla.style.display = 'table';
             mensaje.style.display = 'none';   
             }
-      
-    });
-}
+        })
+            .catch(err =>{
+                alert('Error al listar Kardex: '+err);
+            });
+    }
 
   function crearKardex() {
+      codiProd = parseInt(document.getElementById('codiProd').value);  
+      cantProd = parseInt(document.getElementById('cantProd').value);
+      saldProd = parseInt(document.getElementById('saldProd').value);
+      moviKard = parseInt(document.getElementById('moviKard').value);
+      if (isNaN(codiProd) || isNaN(cantProd) || isNaN(saldProd) || isNaN(moviKard)) {
+    alert("Todos los campos son obligatorios y deben ser números válidos.");
+    return;
+    }
+    if (moviKard !== 1 && moviKard !== 2) {
+      alert("El movimiento debe ser 1 (Entrada) o 2 (Salida).");
+      return;
+    }
     const data = {
-      codiProd: parseInt(document.getElementById('codiProd').value),  
-      cantProd: parseInt(document.getElementById('cantProd').value),
-      saldProd: parseInt(document.getElementById('saldProd').value),
-      moviKard: parseInt(document.getElementById('moviKard').value)
+        codiProd,
+        cantProd,
+        saldProd,
+        moviKard
     };
 
     fetch(url, {
@@ -252,12 +268,17 @@
   }
 
   function actualizarKardex() {
-    const data = {
-      codiProd: parseInt(document.getElementById('codiProd').value),
-      cantProd: parseInt(document.getElementById('cantProd').value),
-      saldProd: parseInt(document.getElementById('saldProd').value),
-      moviKard: parseInt(document.getElementById('moviKard').value)
-    };
+    const codiProd = parseInt(document.getElementById('codiProd').value);
+    const cantProd = parseInt(document.getElementById('cantProd').value);
+    const saldProd = parseInt(document.getElementById('saldProd').value);
+    const moviKard = parseInt(document.getElementById('moviKard').value);
+
+    if (isNaN(codiProd) || isNaN(cantProd) || isNaN(saldProd) || isNaN(moviKard)) {
+      alert("Todos los campos son obligatorios y deben ser números válidos.");
+      return;
+    }
+
+    const data = { codiProd, cantProd, saldProd, moviKard };
 
     fetch(url, {
       method: 'PUT',
@@ -283,7 +304,7 @@
       return;
     }
 
-    fetch(`${url}?codiProd=${codigo}`, {
+    fetch(`${url}?codiProd=${codiProd}`, {
       method: 'DELETE'
     }).then(res => {
       if (res.ok) {

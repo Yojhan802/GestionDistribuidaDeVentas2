@@ -46,7 +46,7 @@ public class ProductoServlet extends HttpServlet {
         String codiProdParam = request.getParameter("codiProd");
 
         // Si envían el código por parámetro, buscar solo ese producto
-        if (codiProdParam != null) {
+        if (codiProdParam != null && !codiProdParam.trim().isEmpty()) {
             try {
                 int codiProd = Integer.parseInt(codiProdParam);
                 Producto producto = em.find(Producto.class, codiProd);

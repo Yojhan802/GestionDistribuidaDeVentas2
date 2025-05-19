@@ -42,7 +42,7 @@ public class KardexServlet extends HttpServlet {
                 obj.put("saldProd", k.getSaldProd());
                 obj.put("moviKard", k.getMoviKard());
                 obj.put("codiProd", k.getCodiProd().getCodiProd()); // Relación
-                obj.put("nombProd", k.getCodiProd().getNombProd()); // Nombre producto relacionado
+//                obj.put("nombProd", k.getCodiProd().getNombProd()); // Nombre producto relacionado
                 jsonArray.put(obj);
             }
             out.print(jsonArray.toString());
@@ -58,41 +58,47 @@ public class KardexServlet extends HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
 
         BufferedReader reader = request.getReader();
-    StringBuilder sb = new StringBuilder();
-    String line;
-    while ((line = reader.readLine()) != null){
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null){
         sb.append(line);
     }
-    JSONObject json = new JSONObject(sb.toString());
+        JSONObject json = new JSONObject(sb.toString());
 
-    EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
+    
     EntityManager em = emf.createEntityManager();
 
-    try{
-        
-        Kardex kardex = new Kardex();
-        
-        kardex.setCantProd(json.getInt("cantProd"));
-        kardex.setSaldProd(json.getInt("saldProd"));
-        kardex.setMoviKard(json.getInt("moviKard"));
+    try {
+            // Validar que el JSON tenga codiProd y que no sea null
+            if (!json.has("codiProd") || json.isNull("codiProd")) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Falta el código de producto");
+                return;
+            }
 
-        // Relación con Producto
-        int codiProd = json.getInt("codiProd");
-        Producto prod = em.find(Producto.class,codiProd);
-        if (prod == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"El codigo de producto no existe");
-            return;
+            Kardex kardex = new Kardex();
+
+            kardex.setCantProd(json.getInt("cantProd"));
+            kardex.setSaldProd(json.getInt("saldProd"));
+            kardex.setMoviKard(json.getInt("moviKard"));
+
+            // Relación con Producto
+            int codiProd = json.getInt("codiProd");
+            Producto prod = em.find(Producto.class, codiProd);
+            if (prod == null) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST,"El código de producto no existe");
+                return;
+            }
+            kardex.setCodiProd(prod);
+
+            kardexController.create(kardex);
+            response.setStatus(HttpServletResponse.SC_CREATED);
+        } catch(Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        } finally {
+            em.close();
         }
-        kardex.setCodiProd(prod);
-
-        kardexController.create(kardex);
-        response.setStatus(HttpServletResponse.SC_CREATED);
-    }catch(Exception e){
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-    }finally{
-        em.close();
     }
-}
+
     
     // PUT: Modificar Kardex
     @Override
@@ -111,42 +117,46 @@ public class KardexServlet extends HttpServlet {
     EntityManager em = emf.createEntityManager();
 
     try {
-        int codiProd = json.getInt("codiProd");
-
-        // Buscar el Kardex que corresponde a ese producto (asumo uno por producto)
-        Kardex kardex = null;
-        List<Kardex> kardexList = kardexController.findKardexEntities();
-        for (Kardex k : kardexList) {
-            if (k.getCodiProd().getCodiProd() == codiProd) {
-                kardex = k;
-                break;
-            }
-        }
-
-        if (kardex != null) {
-            kardex.setCantProd(json.getInt("cantProd"));
-            kardex.setSaldProd(json.getInt("saldProd"));
-            kardex.setMoviKard(json.getInt("moviKard"));
-
-            
-            Producto prod = em.find(Producto.class, codiProd);
-            if (prod == null) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El código de producto no existe");
+            // Validar que el JSON tenga codiProd y que no sea null
+            if (!json.has("codiProd") || json.isNull("codiProd")) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Falta el código de producto");
                 return;
             }
-            kardex.setCodiProd(prod);
+            int codiProd = json.getInt("codiProd");
 
-            kardexController.edit(kardex);
-            response.setStatus(HttpServletResponse.SC_OK);
-        } else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Kardex no encontrado para el producto dado");
+            // Buscar el Kardex que corresponde a ese producto (asumo uno por producto)
+            Kardex kardex = null;
+            List<Kardex> kardexList = kardexController.findKardexEntities();
+            for (Kardex k : kardexList) {
+                if (k.getCodiProd().getCodiProd() == codiProd) {
+                    kardex = k;
+                    break;
+                }
+            }
+
+            if (kardex != null) {
+                kardex.setCantProd(json.getInt("cantProd"));
+                kardex.setSaldProd(json.getInt("saldProd"));
+                kardex.setMoviKard(json.getInt("moviKard"));
+
+                Producto prod = em.find(Producto.class, codiProd);
+                if (prod == null) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El código de producto no existe");
+                    return;
+                }
+                kardex.setCodiProd(prod);
+
+                kardexController.edit(kardex);
+                response.setStatus(HttpServletResponse.SC_OK);
+            } else {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Kardex no encontrado para el producto dado");
+            }
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        } finally {
+            em.close();
         }
-    } catch (Exception e) {
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-    } finally {
-        em.close();
     }
-}
 
     // DELETE: Eliminar Kardex
     @Override
