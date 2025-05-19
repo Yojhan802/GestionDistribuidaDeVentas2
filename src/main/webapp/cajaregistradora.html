@@ -194,13 +194,13 @@
 
                 try {
                     // Enviar parámetro codiClie al servlet clientebuscar
-                    const res = await fetch( clientebuscar?codiClie=${valor});
+                    const res = await fetch(`clientebuscar?codiClie=${valor}`);
                     if (!res.ok) {
                         throw new Error('Cliente no encontrado');
                     }
                     const data = await res.json();
                     clienteActual = data;
-                    clienteNombreP.textContent = Cliente: ${data.nombClie} (Código: ${data.codiClie});
+                    clienteNombreP.textContent = `Cliente: ${data.nombClie} (Código: ${data.codiClie})`;
                     mostrarMensaje('Cliente encontrado');
                 } catch (error) {
                     clienteActual = null;
@@ -254,13 +254,13 @@
                 productoActual = null;
 
                 try {
-                    const res = await fetch(/producto-buscar?codiProd=${codProd});
+                    const res = await fetch( `/producto-buscar?codiProd=${codProd}`);
                     if (!res.ok)
                         throw new Error('Producto no encontrado');
                     const data = await res.json();
                     productoActual = data;
-                    productoNombreP.textContent = Producto: ${data.nombProd};
-                    productoPrecioP.textContent = Precio: S/. ${data.precioUnit.toFixed(2)};
+                    productoNombreP.textContent = `Producto: ${data.nombProd}`;
+                    productoPrecioP.textContent = `Precio: S/. ${data.precioUnit.toFixed(2)}`;
                     mostrarMensaje('Producto encontrado');
                 } catch {
                     mostrarMensaje('Producto no encontrado', 'error');
