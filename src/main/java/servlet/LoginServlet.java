@@ -1,4 +1,5 @@
-package servlet; 
+package servlet;
+
 import dto.Usuario;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import javax.persistence.NoResultException;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/Servlet"})
 public class LoginServlet extends HttpServlet {
@@ -36,31 +38,33 @@ public class LoginServlet extends HttpServlet {
         }
 
         EntityManager em = emf.createEntityManager();
+        Usuario user = null;
 
         try {
             TypedQuery<Usuario> query = em.createQuery(
-                "SELECT u FROM Usuario u WHERE u.logiUsua = :username AND u.passUsua = :password", Usuario.class);
+                    "SELECT u FROM Usuario u WHERE u.logiUsua = :username AND u.passUsua = :password", Usuario.class);
             query.setParameter("username", username);
             query.setParameter("password", password);
 
-            Usuario user = null;
-            try {
-                user = query.getSingleResult();
-            } catch (Exception e) {
-                // Usuario no encontrado
-            }
+            user = query.getSingleResult();
 
-            if (user != null) {
-                HttpSession session = request.getSession();
-                session.setAttribute("usuario", user);
-                response.sendRedirect("index.html");
-            } else {
-                response.sendRedirect("login.html?error=Usuario%20o%20contraseña%20incorrectos");
-            }
-
+        } catch (NoResultException e) {
+            // No hace falta hacer nada, el usuario quedará como null
+        } catch (Exception e) {
+            response.sendRedirect("login.html?error=Error%20en%20la%20consulta");
+            return;
         } finally {
             em.close();
         }
+
+        if (user != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute("usuario", user);
+            response.sendRedirect(request.getContextPath() + "/index.html");
+        } else {
+            response.sendRedirect("login.html?error=Usuario%20o%20contraseña%20incorrectos");
+        }
+
     }
 
     @Override
