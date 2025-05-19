@@ -1,11 +1,9 @@
 package servlet;
+
 import dao.ClienteJpaController;
 import dto.Cliente;
 import java.io.IOException;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceUnit;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,35 +14,38 @@ import org.json.JSONObject;
 @WebServlet(name = "ClienteBuscarServlet", urlPatterns = {"/clientebuscar"})
 public class ClienteBuscarServlet extends HttpServlet {
 
-    ClienteJpaController clie = new ClienteJpaController();
-
-    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String codiClieStr = request.getParameter("codiClie");
-        
- try{
-     if (codiClieStr == null || codiClieStr.isEmpty()) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
-        Cliente cliente = clie.findCliente(Integer.parseInt(codiClieStr));
 
-            if (cliente == null) {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                return;
-            }
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
 
-            JSONObject json = new JSONObject();
-            json.put("codiClie", cliente.getCodiClie());
-            json.put("nombClie", cliente.getNombClie());
-            // añade otros campos que necesites
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().print(json.toString());
+        JSONObject json = new JSONObject();
+
+        try {
+            int codiClie = Integer.parseInt(request.getParameter("codiClie"));
+            ClienteJpaController clie = new ClienteJpaController();
+            Cliente cliente = clie.findCliente(codiClie);
+
+            if (cliente != null) {
+                json.put("res", "ok");
+                json.put("codiClie", cliente.getCodiClie());
+                json.put("nombClie", cliente.getNombClie());
+            } else {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND); // 404
+                json.put("res", "error");
+                json.put("message", "Cliente no encontrado");
+            }
 
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        } 
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400
+            json.put("res", "error");
+            json.put("message", "Parámetro inválido o error en el servidor");
+        }
+
+        out.print(json.toString());
+        out.flush();
     }
+
 }
