@@ -13,6 +13,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
@@ -26,6 +28,11 @@ public class UsuarioJpaController implements Serializable {
         this.emf = emf;
     }
     private EntityManagerFactory emf = null;
+
+    public UsuarioJpaController() {
+        emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
+    }
+    
 
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
@@ -139,5 +146,21 @@ public class UsuarioJpaController implements Serializable {
             em.close();
         }
     }
+    public Usuario findUsuarioByLoginAndPassword(String login, String password) {
+    EntityManager em = getEntityManager();
+    try {
+        TypedQuery<Usuario> query = em.createQuery(
+            "SELECT u FROM Usuario u WHERE u.logiUsua = :login AND u.passUsua = :password", Usuario.class);
+        query.setParameter("login", login);
+        query.setParameter("password", password);
+        
+        return query.getSingleResult();
+    } catch (Exception e) {
+        return null; // Si no encuentra usuario o hay error
+    } finally {
+        em.close();
+    }
+}
+
     
 }
