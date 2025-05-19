@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"}) // Cambiamos la URL pattern a /login
+@WebServlet(name = "LoginServlet", urlPatterns = {"/Servlet"}) 
 public class LoginServlet extends HttpServlet {
 
     private EntityManagerFactory emf;
