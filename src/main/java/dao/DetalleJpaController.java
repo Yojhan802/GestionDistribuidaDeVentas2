@@ -7,11 +7,12 @@ package dao;
 import dao.exceptions.NonexistentEntityException;
 import dto.Detalle;
 import java.io.Serializable;
+
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import dto.Producto;
+
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -42,16 +43,7 @@ public class DetalleJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Producto codiProd = detalle.getCodiProd();
-            if (codiProd != null) {
-                codiProd = em.getReference(codiProd.getClass(), codiProd.getCodiProd());
-                detalle.setCodiProd(codiProd);
-            }
             em.persist(detalle);
-            if (codiProd != null) {
-                codiProd.getDetalleCollection().add(detalle);
-                codiProd = em.merge(codiProd);
-            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -65,22 +57,7 @@ public class DetalleJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Detalle persistentDetalle = em.find(Detalle.class, detalle.getCodiDeta());
-            Producto codiProdOld = persistentDetalle.getCodiProd();
-            Producto codiProdNew = detalle.getCodiProd();
-            if (codiProdNew != null) {
-                codiProdNew = em.getReference(codiProdNew.getClass(), codiProdNew.getCodiProd());
-                detalle.setCodiProd(codiProdNew);
-            }
             detalle = em.merge(detalle);
-            if (codiProdOld != null && !codiProdOld.equals(codiProdNew)) {
-                codiProdOld.getDetalleCollection().remove(detalle);
-                codiProdOld = em.merge(codiProdOld);
-            }
-            if (codiProdNew != null && !codiProdNew.equals(codiProdOld)) {
-                codiProdNew.getDetalleCollection().add(detalle);
-                codiProdNew = em.merge(codiProdNew);
-            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -109,11 +86,6 @@ public class DetalleJpaController implements Serializable {
                 detalle.getCodiDeta();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The detalle with id " + id + " no longer exists.", enfe);
-            }
-            Producto codiProd = detalle.getCodiProd();
-            if (codiProd != null) {
-                codiProd.getDetalleCollection().remove(detalle);
-                codiProd = em.merge(codiProd);
             }
             em.remove(detalle);
             em.getTransaction().commit();

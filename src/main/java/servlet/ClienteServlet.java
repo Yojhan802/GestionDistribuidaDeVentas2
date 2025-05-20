@@ -43,7 +43,7 @@ public class ClienteServlet extends HttpServlet {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             PrintWriter out = response.getWriter();
-            out.print(new JSONArray(clientes).toString());
+            out.print(jsonArray.toString());
             out.flush();
         } finally {
             em.close();

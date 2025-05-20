@@ -169,13 +169,13 @@
     </table>
 
 <script>
-  const url = 'http://localhost:8080/GestionDistribuidaDeVentas/kardex';
+  const url = 'kardex';
 
   function getProductoByCodiProd() {
   const codiProd = document.getElementById('codiProd').value;
   if (!codiProd) return;
 
-  fetch(`http://localhost:8080/GestionDistribuidaDeVentas/producto?codiProd=${codiProd}`)
+  fetch(`producto?codiProd=${codiProd}`)
     .then(response => {
       if (!response.ok) throw new Error("Producto no encontrado");
       return response.json();
@@ -309,7 +309,7 @@
     method: 'DELETE'
   }).then(res => {
     if (res.ok) {
-      alert("Producto y Kardex eliminados exitosamente");
+      alert("Kardex eliminado exitosamente");
       listarKardex();
     } else {
       res.text().then(msg => alert("Error al eliminar: " + msg));

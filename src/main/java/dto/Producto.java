@@ -4,31 +4,22 @@
  */
 package dto;
 
-import jakarta.jms.Connection;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.util.Collection;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * 
+ * @author yojha
  */
 @Entity
 @Table(name = "producto")
@@ -41,17 +32,13 @@ import javax.validation.constraints.Size;
     @NamedQuery(name = "Producto.findByStocProd", query = "SELECT p FROM Producto p WHERE p.stocProd = :stocProd")})
 public class Producto implements Serializable {
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "codiProd")
-    private Collection<Detalle> detalleCollection;
-
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @NotNull
     @Column(name = "codiProd")
     private Integer codiProd;
-    @Size(max = 100)
+    @Size(max = 45)
     @Column(name = "nombProd")
     private String nombProd;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
@@ -118,19 +105,10 @@ public class Producto implements Serializable {
         }
         return true;
     }
-    
+
     @Override
     public String toString() {
-        return "dto.Producto[ codiProd=" + codiProd + " ]";
-    }
-
-    @XmlTransient
-    public Collection<Detalle> getDetalleCollection() {
-        return detalleCollection;
-    }
-
-    public void setDetalleCollection(Collection<Detalle> detalleCollection) {
-        this.detalleCollection = detalleCollection;
+        return "dao.Producto[ codiProd=" + codiProd + " ]";
     }
     
 }
