@@ -6,10 +6,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
-import javax.persistence.*;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import jakarta.persistence.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

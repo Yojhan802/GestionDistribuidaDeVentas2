@@ -4,7 +4,7 @@
  */
 package dto;
 
-import jakarta.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Basic;

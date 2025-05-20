@@ -11,12 +11,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,7 +28,7 @@ import org.json.JSONObject;
 public class KardexServlet extends HttpServlet {
 Connection con = Conexion.getConnection();
     private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
-    private final KardexJpaController kardexController = new KardexJpaController(emf);
+    private final KardexJpaController kardexController = new KardexJpaController();
     private final ProductoJpaController productoController = new ProductoJpaController();
 
     // GET: Listar Kardex

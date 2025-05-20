@@ -26,6 +26,26 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.30</version>
         </dependency>
+        <!-- JSON Processing API (Jakarta JSON) -->
+<dependency>
+    <groupId>jakarta.json</groupId>
+    <artifactId>jakarta.json-api</artifactId>
+    <version>2.1.1</version>
+</dependency>
+<dependency>
+    <groupId>org.glassfish</groupId>
+    <artifactId>jakarta.json</artifactId>
+    <version>2.0.1</version>
+</dependency>
+
+<!-- Servlet API -->
+<dependency>
+    <groupId>jakarta.servlet</groupId>
+    <artifactId>jakarta.servlet-api</artifactId>
+    <version>6.0.0</version>
+    <scope>provided</scope>
+</dependency>
+
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.core</artifactId>
