@@ -9,32 +9,34 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
- * Filtro de autenticación para proteger páginas privadas.
- * Verifica si el usuario está logueado antes de permitir acceso.
+ * Filtro de autenticación para proteger páginas privadas. Verifica si el
+ * usuario está logueado antes de permitir acceso.
  */
-@WebFilter(filterName = "FiltroAutenticacion", urlPatterns = {"/index.html","/cliente.html","/detalle.html","/kardex.html","/producto.html","/usuario.html","/venta.html"})
+@WebFilter(filterName = "FiltroAutenticacion", urlPatterns = {"/*"})
 public class FiltroAutenticacion implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-        throws IOException, ServletException {
-        
-        // Convertir a objetos HTTP para trabajar con sesión y redirección
+            throws IOException, ServletException {
+
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        // Obtener sesión actual, sin crear una nueva si no existe
-        HttpSession session = req.getSession(false);
+        String path = req.getRequestURI();
 
-        // Comprobar si hay un usuario logueado en sesión
-        boolean usuarioLogueado = (session != null && session.getAttribute("usuario") != null);
-
-        if (usuarioLogueado) {
-            // Usuario autenticado: dejar continuar la petición
+        // Permitir acceso a login.html y recursos públicos sin filtro
+        if (path.endsWith("login.html") || path.endsWith("LoginServlet") || path.contains("/css/") || path.contains("/js/")) {
             chain.doFilter(request, response);
+            return;
+        }
+
+        HttpSession session = req.getSession(false);
+        String usuario = (session != null) ? (String) session.getAttribute("usuario") : null;
+
+        if (usuario == null) {
+            res.sendRedirect(req.getContextPath() + "/login.html");
         } else {
-            // No está autenticado: redirigir a la página de login
-            res.sendRedirect("login.html");
+            chain.doFilter(request, response);
         }
     }
 }
