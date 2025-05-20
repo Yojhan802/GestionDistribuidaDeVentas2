@@ -1,11 +1,13 @@
 package servlet;
 
+import conexion.Conexion;
 import dto.Producto;
 import dao.ProductoJpaController;
 import dao.exceptions.NonexistentEntityException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -25,7 +27,7 @@ import org.json.JSONObject;
  */
 @WebServlet(name = "ProductoServlet", urlPatterns = {"/producto"})
 public class ProductoServlet extends HttpServlet {
-    
+    Connection con = Conexion.getConnection();
     //Colocar la persistencia del proyecto
     @PersistenceUnit(unitName = "com.mycompany_TPD06_war_1.0-SNAPSHOTPU")
     private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");

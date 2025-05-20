@@ -1,9 +1,11 @@
 package servlet;
 
+import conexion.Conexion;
 import dao.ProductoJpaController;
 import dto.Producto;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -13,7 +15,7 @@ import org.json.JSONObject;
 
 @WebServlet(name = "ProductoBuscarServlet", urlPatterns = {"/productobuscar"})
 public class ProductoBuscarServlet extends HttpServlet {
-
+Connection con = Conexion.getConnection();
     ProductoJpaController produc = new ProductoJpaController();
 
     @Override

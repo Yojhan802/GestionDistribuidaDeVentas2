@@ -1,5 +1,6 @@
 package servlet;
 
+import conexion.Conexion;
 import dao.VentaJpaController;
 import dao.ClienteJpaController;
 import dao.ProductoJpaController;
@@ -10,6 +11,7 @@ import dto.Producto;
 import dto.Venta;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +26,7 @@ import org.json.JSONObject;
 
 @WebServlet(name = "VentaRegistrarServlet", urlPatterns = {"/ventaregistrar"})
 public class VentaRegistrarServlet extends HttpServlet {
-
+Connection con = Conexion.getConnection();
     VentaJpaController ventaController = new VentaJpaController();
     ClienteJpaController clienteController = new ClienteJpaController();
     ProductoJpaController productoController = new ProductoJpaController();

@@ -1,4 +1,5 @@
 
+import conexion.Conexion;
 import dao.KardexJpaController;
 
 /*
@@ -12,6 +13,10 @@ import dao.KardexJpaController;
  */
 public class prueba {
     public static void main(String[] args) {
-        KardexJpaController controladora = new KardexJpaController();
+        if (Conexion.getConnection() != null) {
+            System.out.println("✅ La conexión fue exitosa.");
+        } else {
+            System.out.println("❌ No se pudo establecer la conexión.");
+        }
     }
 }
