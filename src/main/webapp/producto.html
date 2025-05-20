@@ -217,9 +217,9 @@
         .catch(err => alert("❌ Error al cargar producto: " + err.message));
     }
 
-    function eliminar(codi) {
+    function eliminar(codigo) {
         if (!confirm('¿Eliminar producto?')) return;
-        fetch(`producto?codiProd=${codi}`, { method: 'DELETE' })
+        fetch(`producto?codiProd=${codigo}`, { method: 'DELETE' })
         .then(res => {
             if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
             return res.json();
