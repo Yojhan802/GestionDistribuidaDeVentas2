@@ -4,19 +4,14 @@
  */
 package dao;
 
-import dao.exceptions.IllegalOrphanException;
 import dao.exceptions.NonexistentEntityException;
-import dao.exceptions.PreexistingEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import dto.Cliente;
-import dto.Detalle;
 import dto.Venta;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -41,10 +36,7 @@ public class VentaJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
-    public void create(Venta venta) throws PreexistingEntityException, Exception {      
-        if (venta.getDetalleCollection() == null) {
-            venta.setDetalleCollection(new ArrayList<Detalle>());
-        }
+    public void create(Venta venta) {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -54,32 +46,12 @@ public class VentaJpaController implements Serializable {
                 codiClie = em.getReference(codiClie.getClass(), codiClie.getCodiClie());
                 venta.setCodiClie(codiClie);
             }
-            Collection<Detalle> attachedDetalleCollection = new ArrayList<Detalle>();
-            for (Detalle detalleCollectionDetalleToAttach : venta.getDetalleCollection()) {
-                detalleCollectionDetalleToAttach = em.getReference(detalleCollectionDetalleToAttach.getClass(), detalleCollectionDetalleToAttach.getCodiDeta());
-                attachedDetalleCollection.add(detalleCollectionDetalleToAttach);
-            }
-            venta.setDetalleCollection(attachedDetalleCollection);
             em.persist(venta);
             if (codiClie != null) {
                 codiClie.getVentaCollection().add(venta);
                 codiClie = em.merge(codiClie);
             }
-            for (Detalle detalleCollectionDetalle : venta.getDetalleCollection()) {
-                Venta oldCodiVentOfDetalleCollectionDetalle = detalleCollectionDetalle.getCodiVent();
-                detalleCollectionDetalle.setCodiVent(venta);
-                detalleCollectionDetalle = em.merge(detalleCollectionDetalle);
-                if (oldCodiVentOfDetalleCollectionDetalle != null) {
-                    oldCodiVentOfDetalleCollectionDetalle.getDetalleCollection().remove(detalleCollectionDetalle);
-                    oldCodiVentOfDetalleCollectionDetalle = em.merge(oldCodiVentOfDetalleCollectionDetalle);
-                }
-            }
             em.getTransaction().commit();
-        } catch (Exception ex) {
-            if (findVenta(venta.getCodiVent()) != null) {
-                throw new PreexistingEntityException("Venta " + venta + " already exists.", ex);
-            }
-            throw ex;
         } finally {
             if (em != null) {
                 em.close();
@@ -87,7 +59,7 @@ public class VentaJpaController implements Serializable {
         }
     }
 
-    public void edit(Venta venta) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(Venta venta) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -95,31 +67,10 @@ public class VentaJpaController implements Serializable {
             Venta persistentVenta = em.find(Venta.class, venta.getCodiVent());
             Cliente codiClieOld = persistentVenta.getCodiClie();
             Cliente codiClieNew = venta.getCodiClie();
-            Collection<Detalle> detalleCollectionOld = persistentVenta.getDetalleCollection();
-            Collection<Detalle> detalleCollectionNew = venta.getDetalleCollection();
-            List<String> illegalOrphanMessages = null;
-            for (Detalle detalleCollectionOldDetalle : detalleCollectionOld) {
-                if (!detalleCollectionNew.contains(detalleCollectionOldDetalle)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Detalle " + detalleCollectionOldDetalle + " since its codiVent field is not nullable.");
-                }
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
             if (codiClieNew != null) {
                 codiClieNew = em.getReference(codiClieNew.getClass(), codiClieNew.getCodiClie());
                 venta.setCodiClie(codiClieNew);
             }
-            Collection<Detalle> attachedDetalleCollectionNew = new ArrayList<Detalle>();
-            for (Detalle detalleCollectionNewDetalleToAttach : detalleCollectionNew) {
-                detalleCollectionNewDetalleToAttach = em.getReference(detalleCollectionNewDetalleToAttach.getClass(), detalleCollectionNewDetalleToAttach.getCodiDeta());
-                attachedDetalleCollectionNew.add(detalleCollectionNewDetalleToAttach);
-            }
-            detalleCollectionNew = attachedDetalleCollectionNew;
-            venta.setDetalleCollection(detalleCollectionNew);
             venta = em.merge(venta);
             if (codiClieOld != null && !codiClieOld.equals(codiClieNew)) {
                 codiClieOld.getVentaCollection().remove(venta);
@@ -128,17 +79,6 @@ public class VentaJpaController implements Serializable {
             if (codiClieNew != null && !codiClieNew.equals(codiClieOld)) {
                 codiClieNew.getVentaCollection().add(venta);
                 codiClieNew = em.merge(codiClieNew);
-            }
-            for (Detalle detalleCollectionNewDetalle : detalleCollectionNew) {
-                if (!detalleCollectionOld.contains(detalleCollectionNewDetalle)) {
-                    Venta oldCodiVentOfDetalleCollectionNewDetalle = detalleCollectionNewDetalle.getCodiVent();
-                    detalleCollectionNewDetalle.setCodiVent(venta);
-                    detalleCollectionNewDetalle = em.merge(detalleCollectionNewDetalle);
-                    if (oldCodiVentOfDetalleCollectionNewDetalle != null && !oldCodiVentOfDetalleCollectionNewDetalle.equals(venta)) {
-                        oldCodiVentOfDetalleCollectionNewDetalle.getDetalleCollection().remove(detalleCollectionNewDetalle);
-                        oldCodiVentOfDetalleCollectionNewDetalle = em.merge(oldCodiVentOfDetalleCollectionNewDetalle);
-                    }
-                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -157,7 +97,7 @@ public class VentaJpaController implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
+    public void destroy(Integer id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -168,17 +108,6 @@ public class VentaJpaController implements Serializable {
                 venta.getCodiVent();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The venta with id " + id + " no longer exists.", enfe);
-            }
-            List<String> illegalOrphanMessages = null;
-            Collection<Detalle> detalleCollectionOrphanCheck = venta.getDetalleCollection();
-            for (Detalle detalleCollectionOrphanCheckDetalle : detalleCollectionOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Venta (" + venta + ") cannot be destroyed since the Detalle " + detalleCollectionOrphanCheckDetalle + " in its detalleCollection field has a non-nullable codiVent field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
             }
             Cliente codiClie = venta.getCodiClie();
             if (codiClie != null) {
@@ -240,14 +169,4 @@ public class VentaJpaController implements Serializable {
         }
     }
     
-    public int getSiguienteCodigo() {
-        EntityManager em = getEntityManager();
-        try {
-            Integer max = (Integer) em.createQuery("SELECT MAX(v.codiVent) FROM Venta v").getSingleResult();
-            return (max == null) ? 1 : max + 1;
-        } finally {
-            em.close();
-}
-    }
-
 }

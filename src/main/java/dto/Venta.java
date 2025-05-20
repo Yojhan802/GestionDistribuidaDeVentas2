@@ -4,24 +4,20 @@
  */
 package dto;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
@@ -38,8 +34,8 @@ public class Venta implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @NotNull
     @Column(name = "codiVent")
     private Integer codiVent;
     @Size(max = 45)
@@ -48,11 +44,8 @@ public class Venta implements Serializable {
     @JoinColumn(name = "codiClie", referencedColumnName = "codiClie")
     @ManyToOne(optional = false)
     private Cliente codiClie;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "codiVent")
-    private Collection<Detalle> detalleCollection;
 
     public Venta() {
-        this.detalleCollection = new ArrayList<>();
     }
 
     public Venta(Integer codiVent) {
@@ -81,15 +74,6 @@ public class Venta implements Serializable {
 
     public void setCodiClie(Cliente codiClie) {
         this.codiClie = codiClie;
-    }
-
-    @XmlTransient
-    public Collection<Detalle> getDetalleCollection() {
-        return detalleCollection;
-    }
-
-    public void setDetalleCollection(Collection<Detalle> detalleCollection) {
-        this.detalleCollection = detalleCollection;
     }
 
     @Override

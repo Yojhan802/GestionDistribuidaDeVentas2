@@ -28,6 +28,7 @@ public class VentaRegistrarServlet extends HttpServlet {
     VentaJpaController ventaController = new VentaJpaController();
     ClienteJpaController clienteController = new ClienteJpaController();
     ProductoJpaController productoController = new ProductoJpaController();
+    DetalleJpaController detallecontroller = new DetalleJpaController();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -73,12 +74,12 @@ public class VentaRegistrarServlet extends HttpServlet {
 
             JSONObject jsonRequest = new JSONObject(sb.toString());
 
-            Integer codiClie = jsonRequest.getInt("clienteId"); /////
+            Integer codiClie = jsonRequest.getInt("clienteId");
             Date fecha = new Date();
             SimpleDateFormat formatoBD = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String fechVent = formatoBD.format(fecha);
             JSONArray detallesArray = jsonRequest.getJSONArray("detalles");
-            System.out.println("Creando venta...");
+
             Cliente cliente = clienteController.findCliente(codiClie);
             if (cliente == null) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -87,13 +88,11 @@ public class VentaRegistrarServlet extends HttpServlet {
                 return;
             }
 
-            // Obtener nuevo código de venta
-            int nuevoCodigo = ventaController.getSiguienteCodigo();
-
             Venta venta = new Venta();
-            venta.setCodiVent(nuevoCodigo);
             venta.setFechVent(fechVent);
             venta.setCodiClie(cliente);
+
+            List<Detalle> detalles = new ArrayList<>();
 
             for (int i = 0; i < detallesArray.length(); i++) {
                 JSONObject det = detallesArray.getJSONObject(i);
@@ -109,42 +108,36 @@ public class VentaRegistrarServlet extends HttpServlet {
                     return;
                 }
 
-                // Descontar stock
                 if (producto.getStocProd() < cantidad) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     jsonResponse.put("error", "Stock insuficiente para producto: código " + codiProd);
                     out.print(jsonResponse.toString());
                     return;
                 }
+
                 producto.setStocProd(producto.getStocProd() - cantidad);
                 productoController.edit(producto);
 
-                List<Detalle> detalles = new ArrayList<>();
-
                 Detalle detalle = new Detalle();
-                detalle.setCodiVent(venta);
                 detalle.setCodiProd(producto);
                 detalle.setCantDeta(cantidad);
                 detalle.setPrecProd(precio);
-                double sbt = cantidad * precio;
-                detalle.setSbttDeta(sbt);
+                detalle.setSbttDeta(cantidad * precio);
 
                 detalles.add(detalle);
-
-                venta.setDetalleCollection(detalles);
-
             }
 
-            // Guardar la venta y los detalles
-            try {
-                ventaController.create(venta);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new ServletException("Error creando venta", e);
+            // Primero creamos la venta para que tenga ID y pueda relacionarse con detalles
+            ventaController.create(venta);
+
+            // Guardamos los detalles con la venta ya persistida
+            for (Detalle detalle : detalles) {
+                detalle.setCodiVent(venta); // Asignamos la venta ya guardada
+                detallecontroller.create(detalle);
             }
 
             response.setStatus(HttpServletResponse.SC_CREATED);
-            jsonResponse.put("mensaje", "Venta registrada con xito");
+            jsonResponse.put("mensaje", "Venta registrada con éxito");
             jsonResponse.put("codiVent", venta.getCodiVent());
             out.print(jsonResponse.toString());
 
