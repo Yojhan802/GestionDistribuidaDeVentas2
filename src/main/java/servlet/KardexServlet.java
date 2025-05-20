@@ -108,55 +108,67 @@ public class KardexServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
-        BufferedReader reader = request.getReader();
+         BufferedReader reader = request.getReader();
     StringBuilder sb = new StringBuilder();
     String line;
     while ((line = reader.readLine()) != null) sb.append(line);
     JSONObject json = new JSONObject(sb.toString());
 
-    
     EntityManager em = emf.createEntityManager();
 
     try {
-            // Validar que el JSON tenga codiProd y que no sea null
-            if (!json.has("codiProd") || json.isNull("codiProd")) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Falta el código de producto");
+        if (!json.has("codiProd") || json.isNull("codiProd")) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Falta el código de producto");
+            return;
+        }
+
+        int codiProd = json.getInt("codiProd");
+        int nuevaCantidad = json.getInt("cantProd");
+        double nuevoStock = json.getDouble("stocProd");
+        int nuevoMovimiento = json.getInt("moviKard");
+
+        // Buscar Kardex relacionado
+        Kardex kardex = null;
+        List<Kardex> kardexList = kardexController.findKardexEntities();
+        for (Kardex k : kardexList) {
+            if (k.getCodiProd().getCodiProd() == codiProd) {
+                kardex = k;
+                break;
+            }
+        }
+
+        if (kardex != null) {
+            // Actualizar Kardex
+            kardex.setCantProd(nuevaCantidad);
+            kardex.setSaldProd((int)nuevoStock);
+            kardex.setMoviKard(nuevoMovimiento);
+
+            Producto prod = em.find(Producto.class, codiProd);
+            if (prod == null) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El producto no existe");
                 return;
             }
-            int codiProd = json.getInt("codiProd");
 
-            // Buscar el Kardex que corresponde a ese producto (asumo uno por producto)
-            Kardex kardex = null;
-            List<Kardex> kardexList = kardexController.findKardexEntities();
-            for (Kardex k : kardexList) {
-                if (k.getCodiProd().getCodiProd() == codiProd) {
-                    kardex = k;
-                    break;
-                }
-            }
+            // Actualizar Producto
+            prod.setStocProd(nuevoStock);
 
-            if (kardex != null) {
-                kardex.setCantProd(json.getInt("cantProd"));
-                kardex.setSaldProd(json.getInt("stocProd"));
-                kardex.setMoviKard(json.getInt("moviKard"));
+            kardex.setCodiProd(prod);
 
-                Producto prod = em.find(Producto.class, codiProd);
-                if (prod == null) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "El código de producto no existe");
-                    return;
-                }
-                kardex.setCodiProd(prod);
+            em.getTransaction().begin();
+            kardexController.edit(kardex);
+            em.merge(prod);
+            em.getTransaction().commit();
 
-                kardexController.edit(kardex);
-                response.setStatus(HttpServletResponse.SC_OK);
-            } else {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Kardex no encontrado para el producto dado");
-            }
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        } finally {
-            em.close();
+            response.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Kardex no encontrado para el producto dado");
         }
+    } catch (Exception e) {
+        if (em.getTransaction().isActive()) em.getTransaction().rollback();
+        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+    } finally {
+        em.close();
+    }
     }
 
     // DELETE: Eliminar Kardex

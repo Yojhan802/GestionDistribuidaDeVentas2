@@ -285,8 +285,12 @@
       body: JSON.stringify(data)
     }).then(res => {
       if (res.ok) {
-        alert("Kardex actualizado exitosamente");
+        alert("Kardex y Producto actualizados exitosamente");
         listarKardex();
+        document.getElementById('codiProd').value = '';
+        document.getElementById('cantProd').value = '';
+        document.getElementById('saldProd').value = '';
+        document.getElementById('moviKard').value = '';
       } else {
         res.text().then(msg => alert("Error al actualizar: " + msg));
       }
