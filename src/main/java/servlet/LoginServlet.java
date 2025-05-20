@@ -15,30 +15,30 @@ import java.io.IOException;
 @WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
 
-    @Override
+     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
         String username = request.getParameter("username");
-    String password = request.getParameter("password");
+        String password = request.getParameter("password");
 
-    response.setContentType("text/plain;charset=UTF-8");
+        response.setContentType("text/plain;charset=UTF-8");
 
-    if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-        response.getWriter().write("Por favor complete todos los campos.");
-        return;
-    }
+        if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
+            response.getWriter().write("Por favor complete todos los campos.");
+            return;
+        }
 
-    UsuarioJpaController usuarioController = new UsuarioJpaController();
-    Usuario user = usuarioController.findUsuarioByLoginAndPassword(username, password);
+        UsuarioJpaController usuarioController = new UsuarioJpaController();
+        Usuario user = usuarioController.findUsuarioByLoginAndPassword(username, password);
 
-    if (user != null) {
-        HttpSession session = request.getSession();
-        session.setAttribute("usuario", user);
-        response.getWriter().write("OK");
-    } else {
-        response.getWriter().write("Usuario o contraseña incorrectos.");
-    }
+        if (user != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute("usuario", user);
+            response.getWriter().write("OK");
+        } else {
+            response.getWriter().write("Usuario o contraseña incorrectos.");
+        }
     }
 
     @Override
