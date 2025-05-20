@@ -239,5 +239,15 @@ public class VentaJpaController implements Serializable {
             em.close();
         }
     }
-    
+
+    public int getSiguienteCodigo() {
+        EntityManager em = getEntityManager();
+        try {
+            Integer max = (Integer) em.createQuery("SELECT MAX(v.codiVent) FROM Venta v").getSingleResult();
+            return (max == null) ? 1 : max + 1;
+        } finally {
+            em.close();
+        }
+    }
+
 }

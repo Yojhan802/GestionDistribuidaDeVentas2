@@ -1,9 +1,16 @@
 package servlet;
+
+import dao.VentaJpaController;
+import dao.ClienteJpaController;
+import dao.ProductoJpaController;
 import dto.Cliente;
 import dto.Detalle;
 import dto.Producto;
 import dto.Venta;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -17,22 +24,22 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-@WebServlet(name = "VentaRegistrarServlet", urlPatterns = {"/venta-registrar"})
+@WebServlet(name = "VentaRegistrarServlet", urlPatterns = {"/ventaregistrar"})
 public class VentaRegistrarServlet extends HttpServlet {
-    @PersistenceUnit(unitName = "com.mycompany_TPD06_war_1.0-SNAPSHOTPU")
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
 
-    private EntityManager getEntityManager() {
-        return emf.createEntityManager();
-    }
-    
-     @Override
+    VentaJpaController ventaController = new VentaJpaController();
+    ClienteJpaController clienteController = new ClienteJpaController();
+    ProductoJpaController productoController = new ProductoJpaController();
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        EntityManager em = getEntityManager();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
 
         try {
-            List<Venta> ventas = em.createNamedQuery("Venta.findAll", Venta.class).getResultList();
+            List<Venta> ventas = ventaController.findVentaEntities();
             JSONArray jsonArray = new JSONArray();
 
             for (Venta v : ventas) {
@@ -43,75 +50,76 @@ public class VentaRegistrarServlet extends HttpServlet {
                 obj.put("nombClie", v.getCodiClie().getNombClie());
                 // Puedes añadir más info si quieres
                 jsonArray.put(obj);
+                out.print(obj.toString());
+                out.flush();
             }
-
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().print(jsonArray.toString());
-
         } finally {
-            em.close();
+
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        EntityManager em = getEntityManager();
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
 
-        try {
+        JSONObject jsonResponse = new JSONObject();
+
+        try (PrintWriter out = response.getWriter()) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = request.getReader().readLine()) != null) {
                 sb.append(line);
             }
+
             JSONObject jsonRequest = new JSONObject(sb.toString());
 
-            // Ejemplo: {
-            //   "codiClie": 1,
-            //   "fechVent": "2025-05-18",
-            //   "detalles": [
-            //       {"codiProd": 10, "cantidad": 2, "precio": 15.5},
-            //       {"codiProd": 12, "cantidad": 1, "precio": 25.0}
-            //    ]
-            // }
-
-            Integer codiClie = jsonRequest.getInt("codiClie");
-            String fechVent = jsonRequest.getString("fechVent");
-            JSONArray detalles = jsonRequest.getJSONArray("detalles");
-
-            // Obtener nuevo código para venta
-            Integer codiVent = obtenerSiguienteCodigoVenta(em);
-
-            Cliente cliente = em.find(Cliente.class, codiClie);
+            Integer codiClie = jsonRequest.getInt("clienteId"); /////
+            Date fecha = new Date(); 
+            SimpleDateFormat formatoBD = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String fechVent = formatoBD.format(fecha);
+            JSONArray detallesArray = jsonRequest.getJSONArray("detalles");
+            System.out.println("Creando venta...");
+            Cliente cliente = clienteController.findCliente(codiClie);
             if (cliente == null) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().print("{\"error\":\"Cliente no encontrado\"}");
+                jsonResponse.put("error", "Cliente no encontrado");
+                out.print(jsonResponse.toString());
                 return;
             }
 
+            // Obtener nuevo código de venta
+            int nuevoCodigo = ventaController.getSiguienteCodigo();
+
             Venta venta = new Venta();
-            venta.setCodiVent(codiVent);
+            venta.setCodiVent(nuevoCodigo);
             venta.setFechVent(fechVent);
             venta.setCodiClie(cliente);
 
-            em.getTransaction().begin();
-            em.persist(venta);
-
-            // Insertar detalles
-            for (int i = 0; i < detalles.length(); i++) {
-                JSONObject det = detalles.getJSONObject(i);
-                Integer codiProd = det.getInt("codiProd");
+            for (int i = 0; i < detallesArray.length(); i++) {
+                JSONObject det = detallesArray.getJSONObject(i);
+                Integer codiProd = det.getInt("productoId");
                 Integer cantidad = det.getInt("cantidad");
-                Double precio = det.getDouble("precio");
+                Double precio = det.getDouble("precProd");
 
-                Producto producto = em.find(Producto.class, codiProd);
+                Producto producto = productoController.findProducto(codiProd);
                 if (producto == null) {
-                    em.getTransaction().rollback();
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    response.getWriter().print("{\"error\":\"Producto no encontrado\"}");
+                    jsonResponse.put("error", "Producto no encontrado: código " + codiProd);
+                    out.print(jsonResponse.toString());
                     return;
                 }
+
+                // Descontar stock
+                if (producto.getStocProd() < cantidad) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    jsonResponse.put("error", "Stock insuficiente para producto: código " + codiProd);
+                    out.print(jsonResponse.toString());
+                    return;
+                }
+                producto.setStocProd(producto.getStocProd() - cantidad);
+                productoController.edit(producto);
 
                 Detalle detalle = new Detalle();
                 detalle.setCodiVent(venta);
@@ -119,31 +127,24 @@ public class VentaRegistrarServlet extends HttpServlet {
                 detalle.setCantDeta(cantidad);
                 detalle.setPrecProd(precio);
 
-                em.persist(detalle);
-
-                // Opcional: actualizar stock producto
-                producto.setStocProd(producto.getStocProd() - cantidad);
-                em.merge(producto);
+                venta.getDetalleCollection().add(detalle);
             }
 
-            em.getTransaction().commit();
+            // Guardar la venta y los detalles
+            System.out.println("Creando venta...");
+            ventaController.create(venta);
+            System.out.println("Venta creada.");
 
             response.setStatus(HttpServletResponse.SC_CREATED);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().print("{\"mensaje\":\"Venta registrada con éxito\",\"codiVent\":" + codiVent + "}");
+            jsonResponse.put("mensaje", "Venta registrada con xito");
+            jsonResponse.put("codiVent", venta.getCodiVent());
+            out.print(jsonResponse.toString());
 
         } catch (Exception e) {
-            em.getTransaction().rollback();
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().print("{\"error\":\"" + e.getMessage() + "\"}");
-        } finally {
-            em.close();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            JSONObject error = new JSONObject();
+            error.put("error", "Error al registrar venta: " + e.getMessage());
+            response.getWriter().print(error.toString());
         }
-    }
-
-    private int obtenerSiguienteCodigoVenta(EntityManager em) {
-        Integer maxCodigo = (Integer) em.createQuery("SELECT MAX(v.codiVent) FROM Venta v").getSingleResult();
-        return (maxCodigo == null ? 1 : maxCodigo + 1);
     }
 }
