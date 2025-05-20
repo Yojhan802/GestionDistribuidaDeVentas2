@@ -11,10 +11,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-/**
- *
- * @author yojha
- */
+
 @WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
 
