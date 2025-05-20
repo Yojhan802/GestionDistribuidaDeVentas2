@@ -243,7 +243,7 @@
 
             // Buscar producto
             buscarProductoBtn.addEventListener('click', async () => {
-                const codProd = productoIdInput.value.trim();
+                const codProd = document.getElementById("productoIdInput").value.trim();
                 if (!codProd) {
                     mostrarMensaje('Ingrese código de producto', 'error');
                     return;
@@ -254,13 +254,15 @@
                 productoActual = null;
 
                 try {
-                    const res = await fetch( `/producto-buscar?codiProd=${codProd}`);
-                    if (!res.ok)
+                    const res = await fetch( `productobuscar?codiProd=${codProd}`);
+                    if (!res.ok){
                         throw new Error('Producto no encontrado');
+                    }
+                        
                     const data = await res.json();
                     productoActual = data;
                     productoNombreP.textContent = `Producto: ${data.nombProd}`;
-                    productoPrecioP.textContent = `Precio: S/. ${data.precioUnit.toFixed(2)}`;
+                    productoPrecioP.textContent = `Precio: S/. ${data.precProd.toFixed(2)}`;
                     mostrarMensaje('Producto encontrado');
                 } catch {
                     mostrarMensaje('Producto no encontrado', 'error');
@@ -288,7 +290,7 @@
                         codiProd: productoActual.codiProd,
                         nombProd: productoActual.nombProd,
                         cantidad: cantidad,
-                        precioUnit: productoActual.precioUnit
+                        precProd: productoActual.precProd
                     });
                 }
                 productoCantidadInput.value = 1;
@@ -306,14 +308,14 @@
                 tablaCarritoBody.innerHTML = '';
                 let total = 0;
                 carrito.forEach((item, index) => {
-                    let subtotal = item.precioUnit * item.cantidad;
+                    let subtotal = item.precProd * item.cantidad;
                     total += subtotal;
                     let tr = document.createElement('tr');
                     tr.innerHTML = `
                 <td>${item.codiProd}</td>
                 <td>${item.nombProd}</td>
                 <td>${item.cantidad}</td>
-                <td>S/. ${item.precioUnit.toFixed(2)}</td>
+                <td>S/. ${item.precProd}</td>
                 <td>S/. ${subtotal.toFixed(2)}</td>
                 <td><button data-index="${index}" class="btnEliminar">X</button></td>
               `;
@@ -348,7 +350,7 @@
                     detalles: carrito.map(item => ({
                             productoId: item.codiProd,
                             cantidad: item.cantidad,
-                            precioUnit: item.precioUnit
+                            precProd: item.precProd
                         }))
                 };
 
