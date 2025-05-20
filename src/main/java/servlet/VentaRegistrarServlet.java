@@ -3,6 +3,7 @@ package servlet;
 import dao.VentaJpaController;
 import dao.ClienteJpaController;
 import dao.ProductoJpaController;
+import dao.DetalleJpaController;
 import dto.Cliente;
 import dto.Detalle;
 import dto.Producto;
@@ -10,12 +11,9 @@ import dto.Venta;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceUnit;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -76,7 +74,7 @@ public class VentaRegistrarServlet extends HttpServlet {
             JSONObject jsonRequest = new JSONObject(sb.toString());
 
             Integer codiClie = jsonRequest.getInt("clienteId"); /////
-            Date fecha = new Date(); 
+            Date fecha = new Date();
             SimpleDateFormat formatoBD = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String fechVent = formatoBD.format(fecha);
             JSONArray detallesArray = jsonRequest.getJSONArray("detalles");
@@ -121,19 +119,29 @@ public class VentaRegistrarServlet extends HttpServlet {
                 producto.setStocProd(producto.getStocProd() - cantidad);
                 productoController.edit(producto);
 
+                List<Detalle> detalles = new ArrayList<>();
+
                 Detalle detalle = new Detalle();
                 detalle.setCodiVent(venta);
                 detalle.setCodiProd(producto);
                 detalle.setCantDeta(cantidad);
                 detalle.setPrecProd(precio);
+                double sbt = cantidad * precio;
+                detalle.setSbttDeta(sbt);
 
-                venta.getDetalleCollection().add(detalle);
+                detalles.add(detalle);
+
+                venta.setDetalleCollection(detalles);
+
             }
 
             // Guardar la venta y los detalles
-            System.out.println("Creando venta...");
-            ventaController.create(venta);
-            System.out.println("Venta creada.");
+            try {
+                ventaController.create(venta);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new ServletException("Error creando venta", e);
+            }
 
             response.setStatus(HttpServletResponse.SC_CREATED);
             jsonResponse.put("mensaje", "Venta registrada con xito");

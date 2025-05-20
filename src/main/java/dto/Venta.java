@@ -7,6 +7,7 @@ package dto;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -51,6 +52,7 @@ public class Venta implements Serializable {
     private Collection<Detalle> detalleCollection;
 
     public Venta() {
+        this.detalleCollection = new ArrayList<>();
     }
 
     public Venta(Integer codiVent) {

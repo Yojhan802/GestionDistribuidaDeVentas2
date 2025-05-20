@@ -41,7 +41,7 @@ public class VentaJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
-    public void create(Venta venta) throws PreexistingEntityException, Exception {
+    public void create(Venta venta) throws PreexistingEntityException, Exception {      
         if (venta.getDetalleCollection() == null) {
             venta.setDetalleCollection(new ArrayList<Detalle>());
         }
@@ -239,7 +239,7 @@ public class VentaJpaController implements Serializable {
             em.close();
         }
     }
-
+    
     public int getSiguienteCodigo() {
         EntityManager em = getEntityManager();
         try {
@@ -247,7 +247,7 @@ public class VentaJpaController implements Serializable {
             return (max == null) ? 1 : max + 1;
         } finally {
             em.close();
-        }
+}
     }
 
 }
