@@ -296,22 +296,22 @@
   function eliminarKardex() {
     const codigo = document.getElementById('codiProd').value;
 
-    if (!codigo) {
-      alert(" Por favor, ingresa el código del Kardex a eliminar.");
-      return;
-    }
-
-    fetch(`${url}?codiProd=${codigo}`, {
-      method: 'DELETE'
-    }).then(res => {
-      if (res.ok) {
-        alert("Kardex eliminado exitosamente");
-        listarKardex();
-      } else {
-        res.text().then(msg => alert("Error al eliminar: " + msg));
-      }
-    }).catch(err => alert("Error al eliminar (catch): " + err));
+  if (!codigo) {
+    alert("Por favor, ingresa el código del producto a eliminar.");
+    return;
   }
+
+  fetch(`${url}?codiProd=${codigo}`, {
+    method: 'DELETE'
+  }).then(res => {
+    if (res.ok) {
+      alert("Producto y Kardex eliminados exitosamente");
+      listarKardex();
+    } else {
+      res.text().then(msg => alert("Error al eliminar: " + msg));
+    }
+  }).catch(err => alert("Error al eliminar (catch): " + err));
+}
 
 
 </script>

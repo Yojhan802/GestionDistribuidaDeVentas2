@@ -166,10 +166,12 @@ public class KardexServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
-        try {
+        EntityManager em = emf.createEntityManager();
+
+    try {
         int codiProd = Integer.parseInt(request.getParameter("codiProd"));
 
-        // Buscar el Kardex por código producto
+        // Buscar el Kardex relacionado al producto
         Kardex kardex = null;
         List<Kardex> kardexList = kardexController.findKardexEntities();
         for (Kardex k : kardexList) {
@@ -181,14 +183,18 @@ public class KardexServlet extends HttpServlet {
 
         if (kardex != null) {
             kardexController.destroy(kardex.getCodiKard());
-            response.setStatus(HttpServletResponse.SC_OK);
-        } else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Kardex no encontrado para el producto dado");
         }
+
+        // Eliminar el producto
+        productoController.destroy(codiProd);
+
+        response.setStatus(HttpServletResponse.SC_OK);
     } catch (NonexistentEntityException e) {
-        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Kardex no encontrado");
+        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Producto o Kardex no encontrado");
     } catch (Exception e) {
         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+    } finally {
+        em.close();
     }
 }
 }
