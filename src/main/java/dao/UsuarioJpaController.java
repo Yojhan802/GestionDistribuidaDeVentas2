@@ -8,6 +8,7 @@ import dao.exceptions.NonexistentEntityException;
 import dao.exceptions.PreexistingEntityException;
 import dto.Usuario;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -161,6 +162,25 @@ public class UsuarioJpaController implements Serializable {
         em.close();
     }
 }
+    
+    public boolean comprobaringreso(String usuario, String contrasenia) {
+        boolean ingreso = false;
+        
+        List<Usuario> listausuarios = new ArrayList<Usuario>();
+        listausuarios = findUsuarioEntities();
+        
+        for (Usuario usu : listausuarios) {
+            if (usu.getLogiUsua().equals(usuario)) {
+                if (usu.getPassUsua().equals(contrasenia)) {
+                    ingreso = true;
+                }else{
+                    ingreso = false;
+                }
+                
+            }
+        }
+        return ingreso;
+    }
 
     
 }

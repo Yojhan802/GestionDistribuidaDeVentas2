@@ -1,3 +1,10 @@
+<%-- 
+    Document   : prueba
+    Created on : 20 may. 2025, 01:04:42
+    Author     : yojha
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="es">
     <head>

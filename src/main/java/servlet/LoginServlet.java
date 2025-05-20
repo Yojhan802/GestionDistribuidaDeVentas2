@@ -18,27 +18,24 @@ public class LoginServlet extends HttpServlet {
      @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        UsuarioJpaController control = new UsuarioJpaController();
+        String usuario = request.getParameter("usuario");
+        String contrasenia = request.getParameter("contrasenia");
         
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+        boolean validacion = false;
+        
+        validacion = control.comprobaringreso(usuario,contrasenia);
+        
+         if (validacion == true) {
+             HttpSession misession = request.getSession(true);
+             misession.setAttribute("usuario", usuario);
+             response.sendRedirect("index.html");
+         }else{
+             response.sendRedirect("login.html");
+         }
+         
 
-        response.setContentType("text/plain;charset=UTF-8");
-
-        if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-            response.getWriter().write("Por favor complete todos los campos.");
-            return;
-        }
-
-        UsuarioJpaController usuarioController = new UsuarioJpaController();
-        Usuario user = usuarioController.findUsuarioByLoginAndPassword(username, password);
-
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("usuario", user);
-            response.getWriter().write("OK");
-        } else {
-            response.getWriter().write("Usuario o contraseña incorrectos.");
-        }
+        
     }
 
     @Override
