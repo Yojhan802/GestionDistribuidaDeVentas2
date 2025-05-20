@@ -138,108 +138,101 @@
             const tabla = document.getElementById('tablaProductos').querySelector('tbody');
             let modoEditar = false;
 
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
+             form.addEventListener('submit', function (e) {
+        e.preventDefault();
 
-                let producto = {
-                    nombProd: document.getElementById('nombProd').value.trim(),
-                    precProd: parseFloat(document.getElementById('precProd').value),
-                    stocProd: parseFloat(document.getElementById('stocProd').value)
-                };
-                if (modoEditar) {
-                producto.codiProd = parseInt(document.getElementById('codiProd').value);
-                }
-                console.log("Enviando producto: ",producto);
+        let producto = {
+            nombProd: document.getElementById('nombProd').value.trim(),
+            precProd: parseFloat(document.getElementById('precProd').value),
+            stocProd: parseFloat(document.getElementById('stocProd').value)
+        };
 
-                
+        let url = 'producto';
+        let method = 'POST';
 
-                fetch('producto', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(producto)
-                })
-                .then(response => {
-                if (!response.ok) {
+        if (modoEditar) {
+            producto.codiProd = parseInt(document.getElementById('codiProd').value);
+            method = 'PUT'; // Usamos PUT para editar
+        }
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(producto)
+        })
+        .then(response => {
+            if (!response.ok) {
                 return response.text().then(msg => { throw new Error(msg); });
             }
-                return response.json();
-            })
-            .then(data => {
-                alert(`✅ ${data.message}`);
-                form.reset();
-                modoEditar = false;
-                cargarProductos();
-            })
-            .catch(error => {
-                alert("❌ Error: " + error.message);
-            // Limpiar campos si hay error (como duplicado)
-                document.getElementById('nombProd').value = '';
-                document.getElementById('precProd').value = '';
-                document.getElementById('stocProd').value = '';
-                });
-            });
+            return response.json();
+        })
+        .then(data => {
+            alert(`${data.message}`);
+            form.reset();
+            modoEditar = false;
+            cargarProductos();
+        })
+        .catch(error => {
+            alert("❌ Error: " + error.message);
+            form.reset();
+        });
+    });
 
-             function cargarProductos() {
-            fetch('producto')
-            .then(res => res.json())
-            .then(data => {
-                tabla.innerHTML = '';
-                data.forEach(p => {
-                    const fila = document.createElement('tr');
-                    fila.innerHTML = `
-                        <td>${p.codiProd}</td>
-                        <td>${p.nombProd}</td>
-                        <td>${p.precProd}</td>
-                        <td>${p.stocProd}</td>
-                        <td>
-                            <button class="btn-editar" onclick='editar(${p.codiProd})'>Editar</button>
-                            <button class="btn-eliminar" onclick='eliminar(${p.codiProd})'>Eliminar</button>
-                        </td>`;
-                    tabla.appendChild(fila);
-                });
-            })
-            .catch(err => alert("Error cargando productos: " + err.message));
-        }
-            
-            
-            function editar(codigo) {
-            fetch(`producto?codiProd=${codigo}`)
-            .then(res => {
+    function cargarProductos() {
+        fetch('producto')
+        .then(res => res.json())
+        .then(data => {
+            tabla.innerHTML = '';
+            data.forEach(p => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${p.codiProd}</td>
+                    <td>${p.nombProd}</td>
+                    <td>${p.precProd}</td>
+                    <td>${p.stocProd}</td>
+                    <td>
+                        <button class="btn-editar" onclick='editar(${p.codiProd})'>Editar</button>
+                        <button class="btn-eliminar" onclick='eliminar(${p.codiProd})'>Eliminar</button>
+                    </td>`;
+                tabla.appendChild(fila);
+            });
+        })
+        .catch(err => alert("Error cargando productos: " + err.message));
+    }
+
+    function editar(codi) {
+        fetch(`producto?codiProd=${codi}`)
+        .then(res => {
             if (!res.ok) throw new Error("Producto no encontrado");
             return res.json();
         })
-            .then(p => {
+        .then(p => {
             document.getElementById('codiProd').value = p.codiProd;
             document.getElementById('nombProd').value = p.nombProd;
             document.getElementById('precProd').value = p.precProd;
             document.getElementById('stocProd').value = p.stocProd;
             modoEditar = true;
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // sube al form
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         })
-            .catch(err => alert("❌ Error al cargar producto: " + err.message));
-  }
-            
-            
-            function eliminar(codi) {
-                if (!confirm("¿Eliminar producto?")) return;
+        .catch(err => alert("❌ Error al cargar producto: " + err.message));
+    }
 
-                fetch(`producto?codiProd=${codi}`, {
-                method: 'DELETE'
-            })
-                .then(res => {
-                if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
-                return res.json();
-            })
-                .then(json => {
-                alert(json.message);
-                cargarProductos();
-         })
-                .catch(err => alert("Error al eliminar: " + err));
-            }
-
-    
-            // Inicializa la tabla
+    function eliminar(codi) {
+        if (!confirm('¿Eliminar producto?')) return;
+        fetch(`producto?codiProd=${codi}`, { method: 'DELETE' })
+        .then(res => {
+            if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+            return res.json();
+        })
+        .then(json => {
+            alert(`✅ ${json.message}`);
             cargarProductos();
+        })
+        .catch(err => alert(`❌ ${err}`));
+    }
+
+    // Cargar productos al inicio
+    window.onload = cargarProductos;
         </script>
     </body>
 </html>

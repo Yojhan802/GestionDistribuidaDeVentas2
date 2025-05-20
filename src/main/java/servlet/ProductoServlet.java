@@ -46,55 +46,43 @@ public class ProductoServlet extends HttpServlet {
 
         
         EntityManager em = getEntityManager();
-    try {
-        String codiProdParam = request.getParameter("codiProd");
+        try {
+            String codiProdParam = request.getParameter("codiProd");
+            if (codiProdParam != null && !codiProdParam.trim().isEmpty()) {
+                try {
+                    int codiProd = Integer.parseInt(codiProdParam);
+                    Producto producto = em.find(Producto.class, codiProd);
+                    if (producto != null) {
+                        JSONObject obj = new JSONObject();
+                        obj.put("codiProd", producto.getCodiProd());
+                        obj.put("nombProd", producto.getNombProd());
+                        obj.put("precProd", producto.getPrecProd());
+                        obj.put("stocProd", producto.getStocProd());
 
-        // Si envían el código por parámetro, buscar solo ese producto
-        if (codiProdParam != null && !codiProdParam.trim().isEmpty()) {
-            try {
-                int codiProd = Integer.parseInt(codiProdParam);
-                Producto producto = em.find(Producto.class, codiProd);
-
-                if (producto != null) {
-                    JSONObject obj = new JSONObject();
-                    obj.put("codiProd", producto.getCodiProd());
-                    obj.put("nombProd", producto.getNombProd());
-                    obj.put("precProd", producto.getPrecProd());
-                    obj.put("stocProd", producto.getStocProd());
-
-                    PrintWriter out = response.getWriter();
-                    out.print(obj.toString());
-                    out.flush();
-                } else {
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Producto no encontrado");
+                        response.getWriter().print(obj.toString());
+                    } else {
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND, "Producto no encontrado");
+                    }
+                } catch (NumberFormatException e) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Código inválido");
                 }
-            } catch (NumberFormatException e) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Código inválido");
+            } else {
+                List<Producto> productos = em.createNamedQuery("Producto.findAll", Producto.class).getResultList();
+                JSONArray jsonArray = new JSONArray();
+                for (Producto p : productos) {
+                    JSONObject obj = new JSONObject();
+                    obj.put("codiProd", p.getCodiProd());
+                    obj.put("nombProd", p.getNombProd());
+                    obj.put("precProd", p.getPrecProd());
+                    obj.put("stocProd", p.getStocProd());
+                    jsonArray.put(obj);
+                }
+                response.getWriter().print(jsonArray.toString());
             }
-        } else {
-            // Si no hay parámetro, devuelve todos los productos
-            List<Producto> productos = em.createNamedQuery("Producto.findAll", Producto.class).getResultList();
-            
-            JSONArray jsonArray = new JSONArray();
-            
-            for (Producto p : productos) {
-                JSONObject obj = new JSONObject();
-                obj.put("codiProd", p.getCodiProd());
-                obj.put("nombProd", p.getNombProd());
-                obj.put("precProd", p.getPrecProd());
-                obj.put("stocProd", p.getStocProd());
-                jsonArray.put(obj);
-            }
-            
-            PrintWriter out = response.getWriter();
-            out.print(jsonArray.toString());
-            
-            out.flush();
+        } finally {
+            em.close();
         }
-    } finally {
-        em.close();
     }
-}
 
     //Agregar
     @Override
@@ -104,68 +92,27 @@ public class ProductoServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
-       EntityManager em = getEntityManager();
+       StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = request.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) sb.append(line);
+        }
+        JSONObject json = new JSONObject(sb.toString());
 
-    BufferedReader reader = request.getReader();
-    StringBuilder jsonBuilder = new StringBuilder();
-    String line;
-    while ((line = reader.readLine()) != null) {
-        jsonBuilder.append(line);
+
+        try {
+            Producto nuevo = new Producto();
+            nuevo.setNombProd(json.getString("nombProd"));
+            nuevo.setPrecProd(json.getDouble("precProd"));
+            nuevo.setStocProd(json.getDouble("stocProd"));
+
+            productoController.create(nuevo);
+            response.setStatus(HttpServletResponse.SC_CREATED);
+            response.getWriter().write("{\"message\":\"Producto creado correctamente\"}");
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
-
-    JSONObject json = new JSONObject(jsonBuilder.toString());
-
-    try {
-        // Si el JSON contiene la acción "delete", procesamos eliminación
-        
-        // Si no es eliminación, asumimos creación o actualización
-        Producto producto;
-        if (json.has("codiProd")) {
-            // Actualización (PUT)
-            int codiProd = json.getInt("codiProd");
-            producto = em.find(Producto.class, codiProd);
-            if (producto == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Producto no encontrado");
-                return;
-            }
-        } else {
-            // Creación (POST)
-            producto = new Producto();
-            int nuevoCodigo = em.createQuery("SELECT COALESCE(MAX(p.codiProd), 0) FROM Producto p", Integer.class)
-                               .getSingleResult() + 1;
-            producto.setCodiProd(nuevoCodigo);
-        }
-
-        // Setear campos comunes para creación y actualización
-        producto.setNombProd(json.getString("nombProd"));
-        producto.setPrecProd(json.getDouble("precProd"));
-        producto.setStocProd(json.getDouble("stocProd"));
-
-        em.getTransaction().begin();
-        if (json.has("codiProd")) {
-            em.merge(producto); // actualización
-        } else {
-            em.persist(producto); // creación
-        }
-        JSONObject resp = new JSONObject();
-        resp.put("status", "success");
-        resp.put("message", "Producto creado/actualizado");
-        resp.put("codiProd", producto.getCodiProd());
-        resp.put("nombProd", producto.getNombProd());
-        resp.put("precProd", producto.getPrecProd());
-        resp.put("stocProd", producto.getStocProd());
-
-        response.getWriter().write(resp.toString());
-
-    } catch (Exception e) {
-        if (em.getTransaction().isActive()) {
-            em.getTransaction().rollback();
-        }
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-    } finally {
-        em.close();
-    }
-}
 
     //Modificar
     @Override
@@ -175,84 +122,36 @@ public class ProductoServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
-       EntityManager em = getEntityManager();
-    BufferedReader reader = request.getReader();
-    StringBuilder jsonBuilder = new StringBuilder();
-    String line;
-    while ((line = reader.readLine()) != null) {
-        jsonBuilder.append(line);
-    }
+       StringBuilder sb = new StringBuilder();
+        try (BufferedReader r = request.getReader()) {
+            String line;
+            while ((line = r.readLine()) != null) sb.append(line);
+        }
+        JSONObject json = new JSONObject(sb.toString());
 
-    JSONObject json = new JSONObject(jsonBuilder.toString());
-
-    String accion = json.optString("accion", "crear");  // por defecto crear
-
-    try {
-        em.getTransaction().begin();
-
-        if ("eliminar".equalsIgnoreCase(accion)) {
-            // Acción eliminar
-            int codiProd = json.getInt("codiProd");
-            Producto producto = em.find(Producto.class, codiProd);
-            if (producto == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Producto no encontrado");
-                em.getTransaction().rollback();
-                return;
-            }
-            em.remove(producto);
-            em.getTransaction().commit();
-
-            // Retorna JSON con el producto eliminado (solo código para confirmar)
-            JSONObject resp = new JSONObject();
-            resp.put("codiProd", codiProd);
-            response.getWriter().write(resp.toString());
-
-        } else if ("editar".equalsIgnoreCase(accion)) {
-            // Acción editar
-            int codiProd = json.getInt("codiProd");
-            Producto producto = em.find(Producto.class, codiProd);
-            if (producto == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Producto no encontrado");
-                em.getTransaction().rollback();
-                return;
-            }
-            producto.setNombProd(json.getString("nombProd"));
-            producto.setPrecProd(json.getDouble("precProd"));
-            producto.setStocProd(json.getDouble("stocProd"));
-            em.merge(producto);
-            em.getTransaction().commit();
-
-            response.getWriter().write(json.toString());
-
-        } else {
-            // Acción crear (por defecto)
-            Producto producto = new Producto();
-            int nuevoCodigo = em.createQuery("SELECT COALESCE(MAX(p.codiProd), 0) FROM Producto p", Integer.class).getSingleResult() + 1;
-            producto.setCodiProd(nuevoCodigo);
-            producto.setNombProd(json.getString("nombProd"));
-            producto.setPrecProd(json.getDouble("precProd"));
-            producto.setStocProd(json.getDouble("stocProd"));
-
-            em.persist(producto);
-            em.getTransaction().commit();
-
-            // Devuelve JSON con producto creado y su código nuevo
-            JSONObject resp = new JSONObject();
-            resp.put("codiProd", nuevoCodigo);
-            resp.put("nombProd", producto.getNombProd());
-            resp.put("precProd", producto.getPrecProd());
-            resp.put("stocProd", producto.getStocProd());
-
-            response.getWriter().write(resp.toString());
+        if (!json.has("codiProd")) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Falta codiProd");
+            return;
         }
 
-    } catch (Exception e) {
-        em.getTransaction().rollback();
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-    } finally {
-        em.close();
+        try {
+            int id = json.getInt("codiProd");
+            Producto p = productoController.findProducto(id);
+            if (p == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Producto no existe");
+                return;
+            }
+            p.setNombProd(json.getString("nombProd"));
+            p.setPrecProd(json.getDouble("precProd"));
+            p.setStocProd(json.getDouble("stocProd"));
+
+            productoController.edit(p);
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write("{\"message\":\"Producto actualizado correctamente\"}");
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
-}
        
 
     //Eliminar
@@ -273,8 +172,7 @@ public class ProductoServlet extends HttpServlet {
             int codiProd = Integer.parseInt(param);
             productoController.destroy(codiProd);
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter()
-                    .write("{\"message\":\"Producto eliminado correctamente\"}");
+            response.getWriter().write("{\"message\":\"Producto eliminado correctamente\"}");
         } catch (NumberFormatException e) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "codiProd inválido");
         } catch (NonexistentEntityException e) {

@@ -57,27 +57,20 @@ public class ProductoJpaController implements Serializable {
     }
 
     public void edit(Producto producto) throws NonexistentEntityException, Exception {
-        EntityManager em = null;
+        EntityManager em = getEntityManager();
         try {
-            em = getEntityManager();
-            em.getTransaction().begin();
-            producto = em.merge(producto);
-            em.getTransaction().commit();
+        em.getTransaction().begin();
+        em.merge(producto);
+        em.getTransaction().commit();
         } catch (Exception ex) {
-            String msg = ex.getLocalizedMessage();
-            if (msg == null || msg.length() == 0) {
-                Integer id = producto.getCodiProd();
-                if (findProducto(id) == null) {
-                    throw new NonexistentEntityException("The producto with id " + id + " no longer exists.");
-                }
-            }
-            throw ex;
-        } finally {
-            if (em != null) {
-                em.close();
-            }
+        if (em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
         }
+        throw ex;
+        } finally {
+        em.close();
     }
+}
 
     public void destroy(Integer id) throws NonexistentEntityException {
         EntityManager em = getEntityManager();
