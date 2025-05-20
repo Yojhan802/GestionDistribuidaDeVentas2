@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class Conexion { 
 
     // Cambia estos datos por los de tu hosting
-private static final String URL = "jdbc:mysql://15.204.212.48:3306/gestiond_distribuido?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+private static final String URL = "jdbc:mysql://15.204.212.48/gestiond_distribuido";
 
     private static final String USER = "gestiond_yojhan";
     private static final String PASSWORD = "Yojhan1106$";
@@ -18,7 +18,7 @@ private static final String URL = "jdbc:mysql://15.204.212.48:3306/gestiond_dist
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             // Intentar conectar
-            Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            Connection conn = DriverManager.getConnection(URL, "gestiond_yojhan", "Yojhan1106$");
             System.out.println("✅ Conexión exitosa a la base de datos");
             return conn;
 
