@@ -1,6 +1,6 @@
 package servlet;
 
-import conexion.Conexion;
+
 import dao.VentaJpaController;
 import dao.ClienteJpaController;
 import dao.ProductoJpaController;
@@ -26,7 +26,7 @@ import org.json.JSONObject;
 
 @WebServlet(name = "VentaRegistrarServlet", urlPatterns = {"/ventaregistrar"})
 public class VentaRegistrarServlet extends HttpServlet {
-Connection con = Conexion.getConnection();
+
     VentaJpaController ventaController = new VentaJpaController();
     ClienteJpaController clienteController = new ClienteJpaController();
     ProductoJpaController productoController = new ProductoJpaController();

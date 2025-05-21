@@ -1,6 +1,6 @@
 package servlet;
 
-import conexion.Conexion;
+
 import dao.KardexJpaController;
 import dao.ProductoJpaController;
 import dao.exceptions.NonexistentEntityException;
@@ -9,7 +9,7 @@ import dto.Producto;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
+
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -23,7 +23,7 @@ import org.json.JSONObject;
 
 @WebServlet(name = "KardexServlet", urlPatterns = {"/kardex", "/kardex/*"})
 public class KardexServlet extends HttpServlet {
-Connection con = Conexion.getConnection();
+
     private final EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
     private final KardexJpaController kardexController = new KardexJpaController();
     private final ProductoJpaController productoController = new ProductoJpaController();

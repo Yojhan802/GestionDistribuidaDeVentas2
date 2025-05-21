@@ -1,6 +1,6 @@
 package servlet;
 
-import conexion.Conexion;
+
 import dao.DetalleJpaController;
 import dao.ProductoJpaController;
 import dao.VentaJpaController;
@@ -31,7 +31,7 @@ import java.util.List;
 
 @WebServlet(name = "DetalleServlet", urlPatterns = {"/detalle"})
 public class DetalleServlet extends HttpServlet {
-Connection con = Conexion.getConnection();
+
     private DetalleJpaController controladorDetalle = new DetalleJpaController();
     private ProductoJpaController controladorProducto = new ProductoJpaController();
     private VentaJpaController controladorVenta = new VentaJpaController();

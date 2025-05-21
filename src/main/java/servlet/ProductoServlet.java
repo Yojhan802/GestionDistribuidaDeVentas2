@@ -1,6 +1,5 @@
 package servlet;
 
-import conexion.Conexion;
 import dto.Producto;
 import dao.ProductoJpaController;
 import dao.exceptions.NonexistentEntityException;
@@ -27,7 +26,7 @@ import org.json.JSONObject;
  */
 @WebServlet(name = "ProductoServlet", urlPatterns = {"/producto"})
 public class ProductoServlet extends HttpServlet {
-    Connection con = Conexion.getConnection();
+
     //Colocar la persistencia del proyecto
     @PersistenceUnit(unitName = "com.mycompany_TPD06_war_1.0-SNAPSHOTPU")
     private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");

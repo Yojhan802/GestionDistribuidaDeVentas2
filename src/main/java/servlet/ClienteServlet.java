@@ -1,10 +1,10 @@
 package servlet;
 
-import conexion.Conexion;
+
 import dto.Cliente;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
+
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -21,7 +21,7 @@ import org.json.JSONObject;
 
 @WebServlet(name = "ClienteServlet", urlPatterns = {"/cliente"})
 public class ClienteServlet extends HttpServlet {
-Connection con = Conexion.getConnection();
+
     @PersistenceUnit(unitName = "com.mycompany_TPD06_war_1.0-SNAPSHOTPU")
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory("com.mycompany_TPD06_war_1.0-SNAPSHOTPU");
 

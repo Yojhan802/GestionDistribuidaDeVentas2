@@ -1,11 +1,11 @@
 package servlet;
 
-import conexion.Conexion;
+
 import dao.ClienteJpaController;
 import dto.Cliente;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,7 +15,7 @@ import org.json.JSONObject;
 
 @WebServlet(name = "ClienteBuscarServlet", urlPatterns = {"/clientebuscar"})
 public class ClienteBuscarServlet extends HttpServlet {
-Connection con = Conexion.getConnection();
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 

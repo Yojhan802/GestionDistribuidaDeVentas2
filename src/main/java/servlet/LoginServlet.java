@@ -1,11 +1,10 @@
 
 package servlet;
 
-import conexion.Conexion;
 import dao.UsuarioJpaController;
 
 import java.io.IOException;
-import java.sql.Connection;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,7 +15,7 @@ import javax.servlet.http.HttpSession;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
-Connection con = Conexion.getConnection();
+
   UsuarioJpaController control = new UsuarioJpaController();
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
